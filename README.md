@@ -432,3 +432,5 @@ Pour toute question ou suggestion :
 
 **Développé avec ❤️ et 🎵 par l'équipe Pick My Vinyl**
 
+#   P i c k m y v i n y l  
+ 
