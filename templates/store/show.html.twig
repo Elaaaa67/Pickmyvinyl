@@ -1,0 +1,22 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Détail boutique{% endblock %}
+
+{% block body %}
+<h1>{{ store.name }}</h1>
+<p>Adresse : {{ store.address }}</p>
+<p>Propriétaire : {{ store.owner ? store.owner.email : '—' }}</p>
+
+{% if is_granted('ROLE_ADMIN') or (app.user and store.owner and app.user.id == store.owner.id) %}
+    <p><a href="{{ path('app_store_stocks', {id: store.id}) }}">Gérer les stocks</a></p>
+{% endif %}
+
+  {# Bouton Réserver visible uniquement pour les utilisateurs connectés #}
+{% if app.user %}
+    <p><a class="btn" href="{{ path('app_reservation_new', {store_id: store.id}) }}">Réserver</a></p>
+{% else %}
+    <p>Vous devez être <a href="{{ path('app_login') }}">connecté</a> pour réserver.</p>
+{% endif %}
+
+<p><a href="{{ path('app_store_index') }}">Retour</a></p>
+{% endblock %}

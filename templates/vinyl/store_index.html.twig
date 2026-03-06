@@ -1,0 +1,203 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Mes vinyles en stock{% endblock %}
+
+{% block body %}
+<div class="vinyl-store-container">
+    <h1>🎵 Mes vinyles en stock - {{ store.name }}</h1>
+
+    <p><a href="{{ path('app_stock_index') }}" class="btn btn-secondary">Gérer les stocks</a></p>
+
+    {% if vinyls is empty %}
+        <div class="alert alert-info">
+            <p>Aucun vinyle en stock pour le moment dans votre enseigne.</p>
+        </div>
+    {% else %}
+        <div class="vinyl-grid">
+            {% for vinyl in vinyls %}
+                <div class="vinyl-card">
+                    {% if vinyl.coverImage %}
+                        <div class="vinyl-cover">
+                            <img src="{{ asset(vinyl.coverImage) }}" alt="{{ vinyl.title }}">
+                        </div>
+                    {% else %}
+                        <div class="vinyl-cover placeholder">
+                            <i class="fas fa-compact-disc"></i>
+                        </div>
+                    {% endif %}
+
+                    <div class="vinyl-info">
+                        <h3>{{ vinyl.title }}</h3>
+                        <p class="artist"><strong>Artiste :</strong> {{ vinyl.artist }}</p>
+
+                        {# Affiche la quantité totale en stock pour ce magasin #}
+                        <p class="stock-info">
+                            <strong>Stock :</strong>
+                            {% set total_stock = 0 %}
+                            {% for stock in vinyl.stocks %}
+                                {% if stock.store == store %}
+                                    {% set total_stock = stock.quantity %}
+                                {% endif %}
+                            {% endfor %}
+                            <span class="badge badge-primary">{{ total_stock }} unité{{ total_stock > 1 ? 's' : '' }}</span>
+                        </p>
+
+                        <div class="actions">
+                            <a href="{{ path('app_vinyl_show', {id: vinyl.id}) }}" class="btn btn-info">Détails</a>
+                            <a href="{{ path('app_vinyl_edit', {id: vinyl.id}) }}" class="btn btn-warning">Modifier</a>
+                            <a href="{{ path('app_stock_index') }}?vinyl_id={{ vinyl.id }}" class="btn btn-primary">Gérer stock</a>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+</div>
+
+<style>
+    .vinyl-store-container {
+        padding: 20px;
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+
+    .vinyl-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: 20px;
+        margin-top: 20px;
+    }
+
+    .vinyl-card {
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        transition: transform 0.2s, box-shadow 0.2s;
+        background: white;
+    }
+
+    .vinyl-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+
+    .vinyl-cover {
+        width: 100%;
+        height: 250px;
+        background-color: #f0f0f0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+    }
+
+    .vinyl-cover img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .vinyl-cover.placeholder {
+        font-size: 3em;
+        color: #ccc;
+    }
+
+    .vinyl-info {
+        padding: 15px;
+    }
+
+    .vinyl-info h3 {
+        margin: 0 0 10px 0;
+        font-size: 1.1em;
+        color: #333;
+    }
+
+    .artist {
+        font-size: 0.9em;
+        color: #666;
+        margin: 5px 0;
+    }
+
+    .stock-info {
+        margin: 10px 0;
+        font-size: 0.95em;
+    }
+
+    .badge {
+        display: inline-block;
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-size: 0.85em;
+        font-weight: bold;
+    }
+
+    .badge-primary {
+        background-color: #007bff;
+        color: white;
+    }
+
+    .actions {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        margin-top: 12px;
+    }
+
+    .btn {
+        display: inline-block;
+        padding: 8px 12px;
+        background-color: #007bff;
+        color: white;
+        text-decoration: none;
+        border-radius: 4px;
+        border: none;
+        cursor: pointer;
+        font-size: 0.9em;
+        text-align: center;
+        transition: background-color 0.2s;
+    }
+
+    .btn:hover {
+        background-color: #0056b3;
+    }
+
+    .btn-info {
+        background-color: #17a2b8;
+    }
+
+    .btn-info:hover {
+        background-color: #138496;
+    }
+
+    .btn-warning {
+        background-color: #ffc107;
+        color: black;
+    }
+
+    .btn-warning:hover {
+        background-color: #e0a800;
+    }
+
+    .btn-secondary {
+        background-color: #6c757d;
+    }
+
+    .btn-secondary:hover {
+        background-color: #5a6268;
+    }
+
+    .alert {
+        padding: 15px;
+        border-radius: 4px;
+        margin: 20px 0;
+    }
+
+    .alert-info {
+        background-color: #d1ecf1;
+        color: #0c5460;
+        border: 1px solid #bee5eb;
+    }
+</style>
+{% endblock %}
+

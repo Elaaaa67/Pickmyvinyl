@@ -1,0 +1,262 @@
+{% extends '@EasyAdmin/page/content.html.twig' %}
+
+{% block page_title %}Tableau de bord administrateur{% endblock %}
+
+{% block main %}
+    <div class="admin-dashboard">
+        {# En-tête avec titre #}
+        <div class="dashboard-header">
+            <h1><i class="fas fa-tachometer-alt"></i> Tableau de bord Pick My Vinyl</h1>
+            <p class="text-muted">Vue d'ensemble de la plateforme</p>
+        </div>
+
+        {# Cartes de statistiques #}
+        <div class="row g-3 mb-4">
+            <div class="col-md-3">
+                <div class="stat-card bg-primary">
+                    <div class="stat-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h3>{{ stats.totalUsers }}</h3>
+                        <p>Utilisateurs</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-3">
+                <div class="stat-card bg-success">
+                    <div class="stat-icon">
+                        <i class="fas fa-compact-disc"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h3>{{ stats.totalVinyls }}</h3>
+                        <p>Vinyles</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-3">
+                <div class="stat-card bg-info">
+                    <div class="stat-icon">
+                        <i class="fas fa-store"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h3>{{ stats.totalStores }}</h3>
+                        <p>Magasins</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-3">
+                <div class="stat-card bg-warning">
+                    <div class="stat-icon">
+                        <i class="fas fa-calendar-check"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h3>{{ stats.totalReservations }}</h3>
+                        <p>Réservations</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {# Statistiques des réservations #}
+        <div class="row g-3 mb-4">
+            <div class="col-md-6">
+                <div class="stat-card bg-light">
+                    <div class="stat-icon text-warning">
+                        <i class="fas fa-hourglass-half"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h3>{{ stats.pendingReservations }}</h3>
+                        <p>Réservations en attente</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="stat-card bg-light">
+                    <div class="stat-icon text-success">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h3>{{ stats.confirmedReservations }}</h3>
+                        <p>Réservations confirmées</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {# Tableaux récents #}
+        <div class="row g-3">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5><i class="fas fa-user-plus"></i> Derniers utilisateurs inscrits</h5>
+                    </div>
+                    <div class="card-body">
+                        {% if stats.recentUsers|length > 0 %}
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Email</th>
+                                        <th>Rôle</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for user in stats.recentUsers %}
+                                        <tr>
+                                            <td>{{ user.id }}</td>
+                                            <td>{{ user.email }}</td>
+                                            <td>
+                                                {% if 'ROLE_ADMIN' in user.roles %}
+                                                    <span class="badge bg-danger">Admin</span>
+                                                {% elseif 'ROLE_STORE' in user.roles %}
+                                                    <span class="badge bg-info">Enseigne</span>
+                                                {% else %}
+                                                    <span class="badge bg-primary">User</span>
+                                                {% endif %}
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        {% else %}
+                            <p class="text-muted">Aucun utilisateur pour le moment.</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5><i class="fas fa-calendar-alt"></i> Dernières réservations</h5>
+                    </div>
+                    <div class="card-body">
+                        {% if stats.recentReservations|length > 0 %}
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Client</th>
+                                        <th>Statut</th>
+                                        <th>Date</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for reservation in stats.recentReservations %}
+                                        <tr>
+                                            <td>#{{ reservation.id }}</td>
+                                            <td>{{ reservation.client.email }}</td>
+                                            <td>
+                                                {% if reservation.status == 'pending' %}
+                                                    <span class="badge bg-warning">En attente</span>
+                                                {% elseif reservation.status == 'confirmed' %}
+                                                    <span class="badge bg-success">Confirmée</span>
+                                                {% elseif reservation.status == 'cancelled' %}
+                                                    <span class="badge bg-danger">Annulée</span>
+                                                {% else %}
+                                                    <span class="badge bg-secondary">{{ reservation.status }}</span>
+                                                {% endif %}
+                                            </td>
+                                            <td>{{ reservation.createdAt|date('d/m/Y') }}</td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        {% else %}
+                            <p class="text-muted">Aucune réservation pour le moment.</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        .admin-dashboard {
+            padding: 20px;
+        }
+
+        .dashboard-header {
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #3D0D0D;
+        }
+
+        .dashboard-header h1 {
+            color: #3D0D0D;
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .stat-card {
+            display: flex;
+            align-items: center;
+            padding: 20px;
+            border-radius: 8px;
+            color: white;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            transition: transform 0.2s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        .stat-card.bg-light {
+            color: #333;
+        }
+
+        .stat-icon {
+            font-size: 3rem;
+            margin-right: 20px;
+            opacity: 0.8;
+        }
+
+        .stat-content h3 {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin: 0;
+        }
+
+        .stat-content p {
+            margin: 0;
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        .card {
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            border: none;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .card-header {
+            background-color: #3D0D0D;
+            color: white;
+            border-radius: 8px 8px 0 0;
+            padding: 15px;
+        }
+
+        .card-header h5 {
+            margin: 0;
+            font-size: 1.1rem;
+        }
+
+        .table {
+            margin: 0;
+        }
+
+        .table-hover tbody tr:hover {
+            background-color: #f5f5f5;
+        }
+    </style>
+{% endblock %}
+

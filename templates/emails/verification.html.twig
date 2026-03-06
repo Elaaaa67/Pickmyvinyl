@@ -1,0 +1,35 @@
+{% extends 'emails/base_email.html.twig' %}
+
+{% block title %}Vérifiez votre adresse email - Pick My Vinyl{% endblock %}
+
+{% block content %}
+    <h1>Bienvenue chez Pick My Vinyl, {{ user.fullName }}!</h1>
+
+    <p>Merci de votre inscription. Pour activer votre compte et accéder à tous les services, veuillez vérifier votre adresse email en cliquant sur le lien ci-dessous :</p>
+
+    <div style="text-align: center; margin: 30px 0;">
+        <a href="{{ verificationUrl }}" style="
+            display: inline-block;
+            padding: 12px 30px;
+            background-color: #3D0D0D;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            font-weight: bold;
+        ">
+            ✓ Vérifier mon email
+        </a>
+    </div>
+
+    <p style="color: #666; font-size: 0.9rem;">
+        Ce lien est valable pendant 24 heures. Si vous n'avez pas créé ce compte, ignorez cet email.
+    </p>
+
+    <hr style="border: none; border-top: 1px solid #eee; margin: 30px 0;">
+
+    <p style="color: #999; font-size: 0.85rem;">
+        Ou copiez-collez ce lien dans votre navigateur : <br>
+        <code style="background: #f5f5f5; padding: 5px; border-radius: 3px;">{{ verificationUrl }}</code>
+    </p>
+{% endblock %}
+

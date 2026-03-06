@@ -1,0 +1,12 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Formulaire boutique{% endblock %}
+
+{% block body %}
+<h1>{% if store is defined %}Éditer{% else %}Créer{% endif %} une boutique</h1>
+{{ form_start(form) }}
+    {{ form_widget(form) }}
+    <button>{{ store is defined ? 'Enregistrer' : 'Créer' }}</button>
+{{ form_end(form) }}
+{% endblock %}
+

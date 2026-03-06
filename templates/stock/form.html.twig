@@ -1,0 +1,12 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Formulaire stock{% endblock %}
+
+{% block body %}
+<h1>{% if stock is defined %}Éditer{% else %}Créer{% endif %} un stock</h1>
+{{ form_start(form) }}
+    {{ form_widget(form) }}
+    <button>{{ stock is defined ? 'Enregistrer' : 'Créer' }}</button>
+{{ form_end(form) }}
+{% endblock %}
+

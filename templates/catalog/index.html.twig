@@ -1,0 +1,251 @@
+{% extends 'base.html.twig' %}
+
+
+{% block body %}
+    <div class="catalog-container">
+        {# TOP SELLERS #}
+
+        <hr class="separator">
+
+        {# GRILLE GÉNÉRALE #}
+        <section class="all-vinyls-section">
+            <div class="section-header">
+                <h2>Tout le catalogue</h2>
+            </div>
+            <div class="vinyl-grid">
+                {% for v in vinyls %}
+                    <div class="top-card">
+                        <a href="{{ path('app_vinyl_detail', {id: v.id}) }}">
+                            <img src="{{ v.coverImage }}" alt="{{ v.title }}" class="img-container">
+                            <div class="info">
+                                <span class="artist">{{ v.artist }}</span>
+                                <h3 class="title">{{ v.title }}</h3>
+                            </div>
+                        </a>
+                        <div class="card-actions" style="padding: 10px; text-align: center; border-top: 1px solid #eee;">
+                            <form method="POST" action="{{ path('app_cart_add') }}">
+                                {# Données du vinyle #}
+                                <input type="hidden" name="vinylId" value="{{ v.id }}">
+                                <input type="hidden" name="title" value="{{ v.title }}">
+                                <input type="hidden" name="artist" value="{{ v.artist }}">
+                                <input type="hidden" name="coverImage" value="{{ v.coverImage }}">
+
+                                <button type="submit" class="btn btn-primary">Ajouter au panier</button>
+                            </form>
+                            <a href="{{ path('app_vinyl_detail', {id: v.id}) }}" class="btn btn-sm btn-outline-secondary">
+                                <i class="fas fa-eye"></i> Voir
+                            </a>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </section>
+
+        {# PAGINATION #}
+        {% if pagination is defined and pagination and pagination.pages > 1 %}
+            <div class="pagination-container">
+                <div class="pagination">
+                    {# Bouton Précédent #}
+                    {% if currentPage > 1 %}
+                        <a href="{{ path('app_catalog', {page: currentPage - 1, per_page: perPage}) }}" class="btn-pagination btn-prev">
+                            ← Précédent
+                        </a>
+                    {% else %}
+                        <span class="btn-pagination btn-prev disabled">← Précédent</span>
+                    {% endif %}
+
+                    {# Affichage du numéro de page #}
+                    <span class="page-info">
+                        Page {{ currentPage }} sur {{ pagination.pages }}
+                    </span>
+
+                    {# Bouton Suivant #}
+                    {% if currentPage < pagination.pages %}
+                        <a href="{{ path('app_catalog', {page: currentPage + 1, per_page: perPage}) }}" class="btn-pagination btn-next">
+                            Suivant →
+                        </a>
+                    {% else %}
+                        <span class="btn-pagination btn-next disabled">Suivant →</span>
+                    {% endif %}
+                </div>
+
+                {# Sélecteur du nombre d'items par page #}
+                <div class="per-page-selector">
+                    <label for="per_page">Vinyles par page :</label>
+                    <select id="per_page" onchange="window.location.href = '{{ path('app_catalog', {page: currentPage}) }}' + '?per_page=' + this.value">
+                        <option value="25" {% if perPage == 25 %}selected{% endif %}>25</option>
+                        <option value="50" {% if perPage == 50 %}selected{% endif %}>50</option>
+                        <option value="75" {% if perPage == 75 %}selected{% endif %}>75</option>
+                        <option value="100" {% if perPage == 100 %}selected{% endif %}>100</option>
+                    </select>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+
+<style>
+    <style>
+        /* Structure Globale */
+    .catalog-container {
+        background-color: #F2EFE9;
+        padding: 40px 20px;
+        min-height: 100vh;
+    }
+
+    .section-header h2 {
+        font-family: 'Playfair Display', serif;
+        color: #3D0D0D;
+        font-style: italic;
+        font-size: 2.5rem;
+        text-align: center;
+        margin-bottom: 40px;
+        border-bottom: 2px solid #3D0D0D;
+        display: inline-block;
+        padding-bottom: 10px;
+    }
+
+    .section-header { text-align: center; }
+
+    /* La Grille */
+    .vinyl-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+        gap: 30px;
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+
+    /* La Carte Vinyle */
+    .top-card {
+        background: white;
+        border-radius: 8px;
+        overflow: hidden;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        border: 1px solid #e0dcd5;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .top-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 15px 30px rgba(61, 13, 13, 0.15);
+    }
+
+    .top-card a { text-decoration: none; color: inherit; }
+
+    .img-container {
+        width: 100%;
+        aspect-ratio: 1/1;
+        object-fit: cover;
+        border-bottom: 1px solid #eee;
+    }
+
+    .info {
+        padding: 15px;
+        text-align: center;
+        flex-grow: 1;
+    }
+
+    .info .artist {
+        display: block;
+        font-family: 'Merriweather', serif;
+        font-size: 0.8rem;
+        color: #888;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-bottom: 5px;
+    }
+
+    .info .title {
+        font-family: 'Playfair Display', serif;
+        font-size: 1.1rem;
+        color: #3D0D0D;
+        margin: 0;
+        font-weight: 700;
+    }
+
+    /* Actions */
+    .card-actions {
+        background: #fdfdfd;
+        display: flex;
+        justify-content: space-around;
+        padding: 15px !important;
+    }
+
+    .btn-sm {
+        font-family: 'Playfair Display', serif;
+        padding: 8px 15px;
+        border-radius: 4px;
+        font-size: 0.85rem;
+        cursor: pointer;
+        transition: 0.3s;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+    .btn-primary {
+        background-color: #3D0D0D;
+        border: none;
+        color: white;
+    }
+
+    .btn-primary:hover {
+        background-color: #631D22;
+    }
+
+    .btn-outline-secondary {
+        border: 1px solid #3D0D0D;
+        color: #3D0D0D;
+        background: transparent;
+    }
+
+    .btn-outline-secondary:hover {
+        background: #F2EFE9;
+    }
+
+    /* Pagination */
+    .pagination-container {
+        margin-top: 50px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 20px;
+        font-family: 'Merriweather', serif;
+    }
+
+    .btn-pagination {
+        padding: 10px 20px;
+        background: white;
+        border: 1px solid #3D0D0D;
+        color: #3D0D0D;
+        text-decoration: none;
+        border-radius: 4px;
+        transition: 0.3s;
+    }
+
+    .btn-pagination:hover:not(.disabled) {
+        background: #3D0D0D;
+        color: white;
+    }
+
+    .btn-pagination.disabled {
+        opacity: 0.3;
+        cursor: not-allowed;
+    }
+
+    .page-info { font-weight: bold; color: #3D0D0D; margin: 0 15px; }
+
+    .per-page-selector select {
+        padding: 5px 10px;
+        border-radius: 4px;
+        border: 1px solid #3D0D0D;
+        background: white;
+        color: #3D0D0D;
+    }
+</style>
+    </style>
+
+
+{% endblock %}

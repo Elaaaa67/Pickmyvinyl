@@ -1,0 +1,12 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Formulaire vinyle{% endblock %}
+
+{% block body %}
+<h1>{% if vinyl is defined %}Éditer{% else %}Créer{% endif %} un vinyle</h1>
+{{ form_start(form) }}
+    {{ form_widget(form) }}
+    <button>{{ vinyl is defined ? 'Enregistrer' : 'Créer' }}</button>
+{{ form_end(form) }}
+{% endblock %}
+

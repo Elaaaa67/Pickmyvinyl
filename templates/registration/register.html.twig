@@ -1,0 +1,90 @@
+{# templates/registration/register.html.twig #}
+{% extends 'base.html.twig' %}
+
+{% block body %}
+    <div class="register-page">
+        <div class="register-card">
+            <header class="register-header">
+                <h1>Bienvenue</h1>
+                <p>Créez votre compte pour réserver vos vinyles favoris.</p>
+            </header>
+
+
+            <div class="choice-container">
+                <p class="choice-label">Vous souhaitez vous inscrire en tant que :</p>
+                <div class="choice-buttons">
+                    <a href="{{ path('app_register', {type: 'user'}) }}" class="btn-choice {{ type == 'user' ? 'active' : '' }}">
+                        <i class="fas fa-user"></i> Collectionneur
+                    </a>
+                    <a href="{{ path('app_register', {type: 'boutique'}) }}" class="btn-choice {{ type == 'boutique' ? 'active' : '' }}">
+                        <i class="fas fa-store"></i> Enseigne
+                    </a>
+                </div>
+            </div>
+            {{ form_start(registrationForm, {'attr': {'class': 'register-form'}}) }}
+
+            <div class="form-group">
+                {{ form_label(registrationForm.email, "Adresse Email") }}
+                {{ form_widget(registrationForm.email, {'attr': {'class': 'form-control', 'placeholder': 'votre@email.com'}}) }}
+                {{ form_errors(registrationForm.email, {'attr': {'class': 'form-error'}}) }}
+            </div>
+            <div class="form-group">
+                {{ form_label(registrationForm.fullName) }}
+                {{ form_widget(registrationForm.fullName, {'attr': {'class': 'form-control', 'placeholder': 'Jean Dupont'}}) }}
+            </div>
+
+            {% if type == 'boutique' %}
+                <div class="form-group">
+                    {{ form_label(registrationForm.storeName) }}
+                    {{ form_widget(registrationForm.storeName, {'attr': {'class': 'form-control', 'placeholder': 'La Galette Noire'}}) }}
+                </div>
+
+                <div class="form-group">
+                    {{ form_label(registrationForm.storeAddress) }}
+                    {{ form_widget(registrationForm.storeAddress, {'attr': {'class': 'form-control', 'placeholder': '123 Rue de la Paix'}}) }}
+                </div>
+
+                <div class="form-group">
+                    {{ form_label(registrationForm.storePhone) }}
+                    {{ form_widget(registrationForm.storePhone, {'attr': {'class': 'form-control', 'placeholder': '01 23 45 67 89'}}) }}
+                </div>
+            {% endif %}
+
+            <div class="form-group">
+                {{ form_label(registrationForm.plainPassword, "Mot de passe") }}
+                {{ form_widget(registrationForm.plainPassword, {'attr': {'class': 'form-control', 'placeholder': '••••••••'}}) }}
+                {{ form_errors(registrationForm.plainPassword, {'attr': {'class': 'form-error'}}) }}
+            </div>
+
+
+            <div class="form-check">
+                {{ form_widget(registrationForm.agreeTerms) }}
+                <label for="{{ registrationForm.agreeTerms.vars.id }}">
+                    J'accepte les conditions d'utilisation et la politique de confidentialité de Pick My Vinyl.
+                </label>
+                {{ form_errors(registrationForm.agreeTerms) }}
+            </div>
+
+            {# Token CSRF - OBLIGATOIRE pour la sécurité #}
+            {{ form_widget(registrationForm._token) }}
+
+            <button type="submit" class="btn-register">
+                S'inscrire
+            </button>
+
+            {{ form_end(registrationForm, {'render_rest': false}) }}
+
+            <div class="login-link">
+                Déjà membre ? <a href="{{ path('app_login') }}">Connectez-vous ici</a>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        .auth-container { max-width: 450px; margin: 80px auto; padding: 40px; background: white; border-radius: 8px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
+        .elegant-title { font-family: 'Playfair Display', serif; font-style: italic; color: #3D0D0D; text-align: center; margin-bottom: 30px; }
+        .form-group label { font-family: 'Merriweather', serif; font-weight: bold; font-size: 0.9rem; color: #555; display: block; margin-bottom: 8px; }
+        .btn-bordeaux { width: 100%; background: #3D0D0D; color: #F2EFE9; border: none; padding: 12px; font-family: 'Playfair Display', serif; font-style: italic; font-size: 1.2rem; cursor: pointer; transition: 0.3s; margin-top: 20px; }
+        .btn-bordeaux:hover { background: #631D22; }
+    </style>
+{% endblock %}

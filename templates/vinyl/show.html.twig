@@ -1,0 +1,75 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ vinyl.title }} - Pick My Vinyl{% endblock %}
+
+{% block body %}
+    <div class="catalog-container">
+        <div class="vinyl-detail-card">
+            <div class="detail-layout">
+                {# Image du Vinyle #}
+                <div class="detail-image">
+                    <img src="{{ vinyl.coverImage }}" alt="{{ vinyl.title }}">
+                </div>
+
+                {# Infos et Actions #}
+                <div class="detail-content">
+                    <header class="detail-header">
+                        <span class="artist-label">{{ vinyl.artist }}</span>
+                        <h1>{{ vinyl.title }}</h1>
+                    </header>
+
+                    <div class="availability-section">
+                        <h3><i class="fas fa-map-marker-alt"></i> Disponibilité en magasin</h3>
+                        <ul class="stock-list">
+                            {% for stock in stocks %}
+                                <li class="{{ stock.quantity > 0 ? 'in-stock' : 'out-of-stock' }}">
+                                    <strong>{{ stock.store.name }}</strong> :
+                                    {{ stock.quantity > 0 ? stock.quantity ~ ' exemplaires' : 'Rupture' }}
+                                </li>
+                            {% else %}
+                                <li class="text-muted">Ce vinyle n'est pas encore référencé en magasin.</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+
+                    <div class="action-box">
+                        <form method="POST" action="{{ path('app_cart_add') }}">
+                            {# Données du vinyle #}
+                            <input type="hidden" name="vinylId" value="{{ vinyl.id }}">
+                            <input type="hidden" name="title" value="{{ vinyl.title }}">
+                            <input type="hidden" name="artist" value="{{ vinyl.artist }}">
+                            <input type="hidden" name="coverImage" value="{{ vinyl.cover_image ?? vinyl.thumb }}">
+
+                            <div class="qty-selector">
+                                <label for="quantity">Quantité :</label>
+                                <input type="number" name="quantity" value="1" min="1" max="10">
+                            </div>
+                            <button type="submit" class="btn-primary-large">
+                                <i class="fas fa-shopping-basket"></i> Ajouter au panier
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        .vinyl-detail-card { max-width: 1000px; margin: 0 auto; background: white; padding: 40px; border-radius: 8px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
+        .detail-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 50px; }
+        .detail-image img { width: 100%; border-radius: 4px; box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
+        .artist-label { text-transform: uppercase; letter-spacing: 2px; color: #888; font-size: 0.9rem; }
+        .detail-header h1 { font-family: 'Playfair Display', serif; color: #3D0D0D; font-size: 2.5rem; margin: 10px 0 30px; }
+
+        .availability-section h3 { font-family: 'Playfair Display', serif; font-size: 1.2rem; border-bottom: 1px solid #eee; padding-bottom: 10px; }
+        .stock-list { list-style: none; padding: 0; margin: 20px 0; }
+        .stock-list li { padding: 8px 0; border-bottom: 1px solid #f9f9f9; }
+        .in-stock { color: #2D5A27; }
+
+        .action-box { background: #F2EFE9; padding: 25px; border-radius: 4px; margin-top: 30px; }
+        .qty-selector { margin-bottom: 15px; }
+        .qty-selector input { padding: 5px; border: 1px solid #ccc; width: 60px; }
+        .btn-primary-large { width: 100%; background: #3D0D0D; color: white; border: none; padding: 15px; font-size: 1.1rem; cursor: pointer; transition: 0.3s; }
+        .btn-primary-large:hover { background: #631D22; }
+    </style>
+{% endblock %}

@@ -1,0 +1,403 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Dashboard Magasin - {{ store.name }}{% endblock %}
+
+{% block body %}
+<div class="store-manager-dashboard">
+    <div class="container">
+        <!-- Header -->
+        <div class="dashboard-header">
+            <div>
+                <h1><i class="fas fa-store"></i> {{ store.name }}</h1>
+                <p class="subtitle">Bienvenue sur votre tableau de bord de magasin</p>
+            </div>
+            <div class="user-info">
+                <i class="fas fa-user-circle"></i>
+                <span>{{ app.user.email }}</span>
+            </div>
+        </div>
+
+        <!-- Statistics Cards -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon" style="background: #e7f3ff;">
+                    <i class="fas fa-compact-disc" style="color: #007bff;"></i>
+                </div>
+                <div class="stat-content">
+                    <span class="stat-label">Vinyles en stock</span>
+                    <span class="stat-value">{{ stats.totalVinyls }}</span>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon" style="background: #fff3cd;">
+                    <i class="fas fa-hourglass-half" style="color: #ffc107;"></i>
+                </div>
+                <div class="stat-content">
+                    <span class="stat-label">Réservations en attente</span>
+                    <span class="stat-value">{{ stats.pendingReservations }}</span>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon" style="background: #d4edda;">
+                    <i class="fas fa-check-circle" style="color: #28a745;"></i>
+                </div>
+                <div class="stat-content">
+                    <span class="stat-label">Réservations confirmées</span>
+                    <span class="stat-value">{{ stats.confirmedReservations }}</span>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon" style="background: #f0f0f0;">
+                    <i class="fas fa-boxes" style="color: #666;"></i>
+                </div>
+                <div class="stat-content">
+                    <span class="stat-label">Quantité totale</span>
+                    <span class="stat-value">{{ stats.totalStock }}</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="quick-actions">
+            <h2>Actions Rapides</h2>
+            <div class="actions-grid">
+                <a href="{{ path('app_store_manager_stocks') }}" class="action-card">
+                    <i class="fas fa-edit"></i>
+                    <span>Gérer les stocks</span>
+                </a>
+                <a href="{{ path('app_store_manager_reservations') }}" class="action-card">
+                    <i class="fas fa-list"></i>
+                    <span>Voir les réservations</span>
+                </a>
+                <a href="{{ path('app_store_index') }}" class="action-card">
+                    <i class="fas fa-store"></i>
+                    <span>Détails du magasin</span>
+                </a>
+                <a href="{{ path('app_logout') }}" class="action-card" style="background: #f8d7da;">
+                    <i class="fas fa-sign-out-alt" style="color: #dc3545;"></i>
+                    <span>Déconnexion</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- Recent Reservations -->
+        <div class="recent-section">
+            <h2>Réservations Récentes</h2>
+            {% if reservations|length > 0 %}
+                <div class="reservations-table">
+                    <div class="table-header">
+                        <span class="col-id">ID</span>
+                        <span class="col-vinyl">Vinyle</span>
+                        <span class="col-client">Client</span>
+                        <span class="col-status">Statut</span>
+                        <span class="col-date">Date</span>
+                        <span class="col-action">Action</span>
+                    </div>
+                    {% for reservation in reservations|slice(0, 10) %}
+                        <div class="table-row">
+                            <span class="col-id">#{{ reservation.id }}</span>
+                            <span class="col-vinyl">{{ reservation.vinyl.title|default('N/A') }}</span>
+                            <span class="col-client">{{ reservation.client.email|default('N/A') }}</span>
+                            <span class="col-status">
+                                <span class="status-badge status-{{ reservation.status|lower|replace({' ': '-'}) }}">
+                                    {{ reservation.status }}
+                                </span>
+                            </span>
+                            <span class="col-date">{{ reservation.createdAt|date('d/m/Y') }}</span>
+                            <span class="col-action">
+                                <a href="{{ path('app_reservation_show', {id: reservation.id}) }}" class="btn-mini">Voir</a>
+                            </span>
+                        </div>
+                    {% endfor %}
+                </div>
+                <div style="text-align: center; margin-top: 1rem;">
+                    <a href="{{ path('app_store_manager_reservations') }}" class="btn btn-primary">
+                        Voir toutes les réservations ({{ reservations|length }})
+                    </a>
+                </div>
+            {% else %}
+                <p class="empty-message">Aucune réservation pour le moment.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<style>
+    .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 1rem;
+    }
+
+    .store-manager-dashboard {
+        padding: 2rem 0;
+        background: #f8f9fa;
+        min-height: 100vh;
+    }
+
+    .dashboard-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background: white;
+        padding: 2rem;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        margin-bottom: 2rem;
+    }
+
+    .dashboard-header h1 {
+        font-family: 'Playfair Display', serif;
+        font-size: 2rem;
+        color: #333;
+        margin: 0 0 0.5rem 0;
+    }
+
+    .subtitle {
+        color: #666;
+        margin: 0;
+    }
+
+    .user-info {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: #666;
+    }
+
+    .user-info i {
+        font-size: 1.5rem;
+    }
+
+    /* Statistics */
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .stat-card {
+        background: white;
+        padding: 1.5rem;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        display: flex;
+        gap: 1rem;
+        align-items: center;
+        transition: transform 0.2s;
+    }
+
+    .stat-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+
+    .stat-icon {
+        width: 60px;
+        height: 60px;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+    }
+
+    .stat-content {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .stat-label {
+        font-size: 0.85rem;
+        color: #666;
+    }
+
+    .stat-value {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #333;
+    }
+
+    /* Quick Actions */
+    .quick-actions {
+        margin-bottom: 2rem;
+    }
+
+    .quick-actions h2 {
+        font-family: 'Playfair Display', serif;
+        font-size: 1.5rem;
+        color: #333;
+        margin-bottom: 1rem;
+    }
+
+    .actions-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+    }
+
+    .action-card {
+        background: white;
+        padding: 1.5rem;
+        border-radius: 8px;
+        text-align: center;
+        text-decoration: none;
+        color: #333;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        transition: all 0.2s;
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+        align-items: center;
+    }
+
+    .action-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+
+    .action-card i {
+        font-size: 2rem;
+        color: #007bff;
+    }
+
+    /* Recent Section */
+    .recent-section {
+        background: white;
+        padding: 2rem;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    .recent-section h2 {
+        font-family: 'Playfair Display', serif;
+        font-size: 1.5rem;
+        color: #333;
+        margin-bottom: 1.5rem;
+    }
+
+    .reservations-table {
+        background: white;
+        border-radius: 4px;
+        overflow-x: auto;
+    }
+
+    .table-header {
+        display: grid;
+        grid-template-columns: 60px 1fr 1fr 120px 100px 80px;
+        gap: 1rem;
+        padding: 1rem;
+        background: #f8f9fa;
+        font-weight: 600;
+        border-bottom: 2px solid #dee2e6;
+    }
+
+    .table-row {
+        display: grid;
+        grid-template-columns: 60px 1fr 1fr 120px 100px 80px;
+        gap: 1rem;
+        padding: 1rem;
+        border-bottom: 1px solid #dee2e6;
+        align-items: center;
+    }
+
+    .table-row:hover {
+        background: #f8f9fa;
+    }
+
+    .col-id {
+        font-weight: 600;
+        color: #007bff;
+    }
+
+    .col-status {
+        text-align: center;
+    }
+
+    .status-badge {
+        padding: 0.25rem 0.75rem;
+        border-radius: 12px;
+        font-size: 0.85rem;
+        font-weight: 600;
+    }
+
+    .status-en-attente {
+        background: #fff3cd;
+        color: #856404;
+    }
+
+    .status-confirmée {
+        background: #d4edda;
+        color: #155724;
+    }
+
+    .status-retirée {
+        background: #e2e3e5;
+        color: #383d41;
+    }
+
+    .status-annulée {
+        background: #f8d7da;
+        color: #721c24;
+    }
+
+    .btn-mini {
+        padding: 0.25rem 0.75rem;
+        background: #007bff;
+        color: white;
+        text-decoration: none;
+        border-radius: 4px;
+        font-size: 0.85rem;
+    }
+
+    .btn-mini:hover {
+        background: #0056b3;
+    }
+
+    .btn {
+        padding: 0.75rem 1.5rem;
+        background: #007bff;
+        color: white;
+        text-decoration: none;
+        border-radius: 4px;
+        border: none;
+        cursor: pointer;
+        font-weight: 600;
+    }
+
+    .btn:hover {
+        background: #0056b3;
+    }
+
+    .btn-primary {
+        background: #007bff;
+        color: white;
+    }
+
+    .empty-message {
+        text-align: center;
+        color: #666;
+        padding: 2rem;
+    }
+
+    @media (max-width: 768px) {
+        .dashboard-header {
+            flex-direction: column;
+            text-align: center;
+        }
+
+        .table-header, .table-row {
+            grid-template-columns: repeat(3, 1fr);
+        }
+
+        .col-vinyl, .col-client {
+            display: none;
+        }
+    }
+</style>
+{% endblock %}
+

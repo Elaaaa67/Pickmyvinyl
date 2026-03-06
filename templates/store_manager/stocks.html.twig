@@ -1,0 +1,430 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Gestion des Stocks - {{ store.name }}{% endblock %}
+
+{% block body %}
+<div class="store-manager-page">
+    <div class="container">
+        <div class="page-header">
+            <h1><i class="fas fa-boxes"></i> Gestion des Stocks</h1>
+            <p class="subtitle">Magasin: <strong>{{ store.name }}</strong></p>
+        </div>
+
+        {# Section d'import depuis Discogs #}
+        <div class="import-section">
+            <h2><i class="fas fa-cloud-download-alt"></i> Importer depuis Discogs</h2>
+            <form method="GET" action="{{ path('app_store_manager_stocks', {id: store.id}) }}" class="search-form">
+                <div class="search-group">
+                    <input type="text" name="q" placeholder="Rechercher un vinyle sur Discogs (titre, artiste...)" value="{{ app.request.query.get('q') }}" class="search-input">
+                    <button type="submit" class="btn-search">
+                        <i class="fas fa-search"></i> Rechercher
+                    </button>
+                </div>
+            </form>
+
+            {% if discogsResults is defined and discogsResults|length > 0 %}
+                <div class="discogs-results">
+                    <h3>Résultats Discogs ({{ discogsResults|length }})</h3>
+                    {% for result in discogsResults %}
+                        <div class="result-card">
+                            <div class="result-info">
+                                {% if result.thumb %}
+                                    <img src="{{ result.thumb }}" alt="{{ result.title }}" class="result-thumb">
+                                {% else %}
+                                    <div class="result-thumb-placeholder">
+                                        <i class="fas fa-record-vinyl"></i>
+                                    </div>
+                                {% endif %}
+                                <div class="result-details">
+                                    <h4>{{ result.title }}</h4>
+                                    <p class="result-meta">
+                                        {% if result.id %}<span class="badge">ID: {{ result.id }}</span>{% endif %}
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="result-actions">
+                                <form method="POST" action="{{ path('app_store_manager_import_discogs', {storeId: store.id}) }}" class="import-form">
+                                    <input type="hidden" name="discogsId" value="{{ result.id }}">
+                                    <input type="number" name="quantity" value="1" min="1" max="100" placeholder="Qté" class="qty-input">
+                                    <button type="submit" class="btn-import">
+                                        <i class="fas fa-plus"></i> Ajouter au stock
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% elseif app.request.query.get('q') %}
+                <div class="no-results">
+                    <i class="fas fa-search"></i>
+                    <p>Aucun résultat trouvé pour "{{ app.request.query.get('q') }}"</p>
+                </div>
+            {% endif %}
+        </div>
+
+        {% if stocks|length > 0 %}
+            <div class="stocks-table">
+                <div class="table-header">
+                    <span class="col-vinyl">Vinyle</span>
+                    <span class="col-artist">Artiste</span>
+                    <span class="col-quantity">Quantité</span>
+                    <span class="col-action">Action</span>
+                </div>
+                {% for stock in stocks %}
+                    <div class="table-row">
+                        <span class="col-vinyl">{{ stock.vinyl.title|default('N/A') }}</span>
+                        <span class="col-artist">{{ stock.vinyl.artist|default('N/A') }}</span>
+                        <span class="col-quantity">
+                            <span class="quantity-badge">{{ stock.quantity }}</span>
+                        </span>
+                        <span class="col-action">
+                            <a href="{{ path('app_stock_show', {id: stock.id}) }}" class="btn-mini">Détails</a>
+                            <a href="{{ path('app_stock_edit', {id: stock.id}) }}" class="btn-mini btn-edit">Modifier</a>
+                        </span>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="empty-state">
+                <i class="fas fa-inbox"></i>
+                <h2>Aucun stock</h2>
+                <p>Aucun vinyle n'est actuellement en stock dans votre magasin.</p>
+            </div>
+        {% endif %}
+
+        <div class="back-link">
+            <a href="{{ path('app_store_manager_dashboard') }}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> Retour au dashboard
+            </a>
+        </div>
+    </div>
+</div>
+
+<style>
+    .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 1rem;
+    }
+
+    .store-manager-page {
+        padding: 2rem 0;
+        background: #f8f9fa;
+        min-height: 100vh;
+    }
+
+    .page-header {
+        background: white;
+        padding: 2rem;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        margin-bottom: 2rem;
+    }
+
+    .page-header h1 {
+        font-family: 'Playfair Display', serif;
+        font-size: 2rem;
+        color: #333;
+        margin: 0 0 0.5rem 0;
+    }
+
+    .subtitle {
+        color: #666;
+        margin: 0;
+    }
+
+    .import-section {
+        background: white;
+        padding: 2rem;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        margin-bottom: 2rem;
+    }
+
+    .import-section h2 {
+        font-family: 'Playfair Display', serif;
+        font-size: 1.5rem;
+        color: #333;
+        margin: 0 0 1.5rem 0;
+    }
+
+    .search-form {
+        margin-bottom: 2rem;
+    }
+
+    .search-group {
+        display: flex;
+        gap: 0.5rem;
+    }
+
+    .search-input {
+        flex: 1;
+        padding: 0.75rem 1rem;
+        border: 2px solid #dee2e6;
+        border-radius: 4px;
+        font-size: 1rem;
+    }
+
+    .search-input:focus {
+        outline: none;
+        border-color: #007bff;
+    }
+
+    .btn-search {
+        padding: 0.75rem 1.5rem;
+        background: #007bff;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .btn-search:hover {
+        background: #0056b3;
+    }
+
+    .discogs-results {
+        margin-top: 2rem;
+    }
+
+    .discogs-results h3 {
+        font-family: 'Playfair Display', serif;
+        color: #333;
+        margin: 0 0 1rem 0;
+    }
+
+    .result-card {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1rem;
+        border: 1px solid #dee2e6;
+        border-radius: 4px;
+        margin-bottom: 1rem;
+        background: #f8f9fa;
+    }
+
+    .result-info {
+        display: flex;
+        gap: 1rem;
+        flex: 1;
+    }
+
+    .result-thumb {
+        width: 80px;
+        height: 80px;
+        object-fit: cover;
+        border-radius: 4px;
+    }
+
+    .result-thumb-placeholder {
+        width: 80px;
+        height: 80px;
+        background: #dee2e6;
+        border-radius: 4px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2rem;
+        color: #6c757d;
+    }
+
+    .result-details h4 {
+        margin: 0 0 0.5rem 0;
+        color: #333;
+        font-size: 1.1rem;
+    }
+
+    .result-meta {
+        margin: 0;
+        display: flex;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+    }
+
+    .badge {
+        background: #e7f3ff;
+        color: #007bff;
+        padding: 0.25rem 0.5rem;
+        border-radius: 3px;
+        font-size: 0.85rem;
+    }
+
+    .result-actions {
+        display: flex;
+        gap: 0.5rem;
+    }
+
+    .import-form {
+        display: flex;
+        gap: 0.5rem;
+        align-items: center;
+    }
+
+    .qty-input {
+        width: 60px;
+        padding: 0.5rem;
+        border: 1px solid #dee2e6;
+        border-radius: 4px;
+        text-align: center;
+    }
+
+    .btn-import {
+        padding: 0.5rem 1rem;
+        background: #28a745;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        white-space: nowrap;
+    }
+
+    .btn-import:hover {
+        background: #218838;
+    }
+
+    .no-results {
+        text-align: center;
+        padding: 2rem;
+        color: #666;
+    }
+
+    .no-results i {
+        font-size: 3rem;
+        color: #ccc;
+        margin-bottom: 1rem;
+    }
+
+    .stocks-table {
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        overflow: hidden;
+        margin-bottom: 2rem;
+    }
+
+    .table-header {
+        display: grid;
+        grid-template-columns: 1fr 1fr 150px 150px;
+        gap: 1rem;
+        padding: 1rem;
+        background: #f8f9fa;
+        font-weight: 600;
+        border-bottom: 2px solid #dee2e6;
+    }
+
+    .table-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr 150px 150px;
+        gap: 1rem;
+        padding: 1rem;
+        border-bottom: 1px solid #dee2e6;
+        align-items: center;
+    }
+
+    .table-row:hover {
+        background: #f8f9fa;
+    }
+
+    .quantity-badge {
+        background: #e7f3ff;
+        color: #007bff;
+        padding: 0.5rem 1rem;
+        border-radius: 4px;
+        font-weight: 600;
+        display: inline-block;
+    }
+
+    .btn-mini {
+        padding: 0.375rem 0.75rem;
+        background: #007bff;
+        color: white;
+        text-decoration: none;
+        border-radius: 4px;
+        font-size: 0.85rem;
+        margin-right: 0.25rem;
+        display: inline-block;
+    }
+
+    .btn-mini:hover {
+        background: #0056b3;
+    }
+
+    .btn-edit {
+        background: #6c757d;
+    }
+
+    .btn-edit:hover {
+        background: #545b62;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 4rem 2rem;
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    .empty-state i {
+        font-size: 4rem;
+        color: #ccc;
+        margin-bottom: 1rem;
+    }
+
+    .empty-state h2 {
+        font-family: 'Playfair Display', serif;
+        color: #333;
+        margin: 0 0 0.5rem 0;
+    }
+
+    .empty-state p {
+        color: #666;
+        margin: 0;
+    }
+
+    .back-link {
+        text-align: center;
+    }
+
+    .btn {
+        padding: 0.75rem 1.5rem;
+        text-decoration: none;
+        border-radius: 4px;
+        border: none;
+        cursor: pointer;
+        font-weight: 600;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .btn-secondary {
+        background: #6c757d;
+        color: white;
+    }
+
+    .btn-secondary:hover {
+        background: #545b62;
+    }
+
+    @media (max-width: 768px) {
+        .table-header, .table-row {
+            grid-template-columns: 1fr 1fr;
+        }
+
+        .col-artist {
+            display: none;
+        }
+    }
+</style>
+{% endblock %}
+

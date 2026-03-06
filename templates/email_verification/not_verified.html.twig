@@ -1,0 +1,69 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Email non vérifié - Pick My Vinyl{% endblock %}
+
+{% block body %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card border-warning">
+                <div class="card-body text-center">
+                    <i class="fas fa-exclamation-circle" style="font-size: 3rem; color: #ffc107; margin-bottom: 20px;"></i>
+
+                    <h1 class="card-title">Email non vérifié</h1>
+
+                    <p class="card-text text-muted mb-4">
+                        Votre adresse email n'a pas encore été vérifiée. Veuillez vérifier votre boîte de réception
+                        et cliquer sur le lien de confirmation que nous vous avons envoyé.
+                    </p>
+
+                    <div class="alert alert-info" role="alert">
+                        <strong>{{ user.email }}</strong>
+                    </div>
+
+                    <p class="text-muted mb-4">
+                        Vous n'avez pas reçu l'email? Vérifiez votre dossier spam ou demandez un nouvel envoi.
+                    </p>
+
+                    <div class="d-flex gap-2 justify-content-center">
+                        <form method="POST" action="{{ path('app_resend_verification_email') }}">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-envelope"></i> Renvoyer l'email
+                            </button>
+                        </form>
+                        <a href="{{ path('app_logout') }}" class="btn btn-outline-secondary">
+                            <i class="fas fa-sign-out-alt"></i> Se déconnecter
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-4 text-center">
+                <p style="color: #666; font-size: 0.9rem;">
+                    <i class="fas fa-lock"></i> Nous avons envoyé un email de vérification à <strong>{{ user.email }}</strong>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .card {
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        border-radius: 8px;
+    }
+
+    .card-body {
+        padding: 40px;
+    }
+
+    .btn {
+        transition: all 0.3s ease;
+    }
+
+    .btn:hover {
+        transform: translateY(-2px);
+    }
+</style>
+{% endblock %}
+

@@ -1,0 +1,12 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Détail stock{% endblock %}
+
+{% block body %}
+<h1>Stock #{{ stock.id }}</h1>
+<p>Vinyle : {{ stock.vinyl ? stock.vinyl.title : '—' }}</p>
+<p>Boutique : {{ stock.store ? stock.store.name : '—' }}</p>
+<p>Quantité : {{ stock.quantity }}</p>
+<p><a href="{{ path('app_stock_index') }}">Retour</a></p>
+{% endblock %}
+

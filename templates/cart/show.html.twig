@@ -1,0 +1,99 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Mon Panier - Pick My Vinyl{% endblock %}
+
+{% block body %}
+    <div class="catalog-container">
+        <div class="cart-card">
+            <header class="section-header">
+                <h2>Mon Panier</h2>
+            </header>
+
+            {% if cartItems|length > 0 %}
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                        <tr>
+                            <th>Vinyle</th>
+                            <th>Année</th>
+                            <th class="text-center">Quantité</th>
+                            <th class="text-end">Actions</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for item in cartItems %}
+                            <tr>
+                                <td>
+                                    <div class="vinyl-item">
+                                        {% if item.coverImage %}
+                                            <img src="{{ item.coverImage }}" alt="{{ item.title }}" class="cart-img">
+                                        {% else %}
+                                            <img src="{{ asset('images/placeholder.png') }}" alt="Image manquante" class="cart-img">
+                                        {% endif %}
+                                        <div>
+                                            <p class="vinyl-title">{{ item.title }}</p>
+                                            <p class="vinyl-artist">{{ item.artist }}</p>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <p class="vinyl-year">-</p>
+                                </td>
+                                <td class="text-center">
+                                    <form action="{{ path('app_cart_update') }}" method="POST" class="update-form">
+                                        <input type="hidden" name="vinylId" value="{{ item.vinylId }}">
+                                        <label for="qty-{{ item.vinylId }}" class="visually-hidden">Quantité</label>
+                                        <input id="qty-{{ item.vinylId }}" type="number" name="quantity" value="{{ item.quantity }}" min="1" class="qty-input" onchange="this.form.submit()">
+                                    </form>
+                                </td>
+                                <td class="text-end">
+                                    <form action="{{ path('app_cart_remove', {'id': item.vinylId}) }}" method="POST">
+                                        <button type="submit" class="btn-remove" title="Supprimer">
+                                            <i class="fas fa-trash-alt"></i>
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="cart-footer">
+                    <p class="total-items">Total : <strong>{{ cartSummary.totalQuantity }} vinyle(s)</strong></p>
+                    <div class="cart-actions">
+                        <form action="{{ path('app_cart_clear') }}" method="POST" onsubmit="return confirm('Vider le panier ?')">
+                            <button type="submit" class="btn-outline-secondary">Vider le panier</button>
+                        </form>
+                        <a href="{{ path('app_reservation_new') }}" class="btn-primary">Passer à la réservation</a>
+                    </div>
+                </div>
+            {% else %}
+                <div class="empty-cart">
+                    <i class="fas fa-compact-disc fa-spin"></i>
+                    <p>Votre bac est vide...</p>
+                    <a href="{{ path('app_catalog') }}" class="btn-primary">Parcourir le catalogue</a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <style>
+        .cart-card { max-width: 1000px; margin: 0 auto; background: white; padding: 40px; border-radius: 8px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
+        .cart-img { width: 60px; height: 60px; object-fit: cover; border-radius: 4px; margin-right: 15px; }
+        .vinyl-item { display: flex; align-items: center; }
+        .vinyl-title { font-family: 'Playfair Display', serif; font-weight: bold; margin: 0; color: #3D0D0D; }
+        .vinyl-artist { font-size: 0.85rem; color: #777; margin: 0; }
+        .vinyl-year { font-size: 0.9rem; color: #666; margin: 0; }
+
+        .qty-input { width: 60px; padding: 5px; border: 1px solid #ddd; border-radius: 4px; text-align: center; }
+        .btn-remove { background: none; border: none; color: #631D22; cursor: pointer; font-size: 1.1rem; transition: 0.3s; }
+        .btn-remove:hover { color: #3D0D0D; transform: scale(1.1); }
+
+        .cart-footer { margin-top: 30px; display: flex; justify-content: space-between; align-items: center; padding-top: 20px; border-top: 2px solid #F2EFE9; }
+        .cart-actions { display: flex; gap: 15px; }
+
+        .empty-cart { text-align: center; padding: 50px; color: #888; }
+        .empty-cart i { font-size: 3rem; margin-bottom: 20px; color: #D4AF37; }
+    </style>
+{% endblock %}

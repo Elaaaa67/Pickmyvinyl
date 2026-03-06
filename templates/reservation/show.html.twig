@@ -1,0 +1,144 @@
+{# templates/reservation/show.html.twig #}
+{% extends 'base.html.twig' %}
+
+{% block title %}Détail Réservation #{{ reservation.id }}{% endblock %}
+
+{% block body %}
+    <div class="reservation-detail-page">
+        <div class="detail-card">
+            <header class="detail-header">
+                <h1>Réservation #{{ reservation.id }}</h1>
+                <span class="status-badge badge-{{ reservation.status|default('pending') }}">
+                {{ reservation.status|upper }}
+            </span>
+            </header>
+
+            <div class="detail-grid">
+                {# Section Vinyle #}
+                <div class="detail-section">
+                    <h3><i class="fas fa-compact-disc"></i> Vinyle</h3>
+                    <div class="vinyl-info">
+                        <p class="title">{{ reservation.vinyl.title }}</p>
+                        <p class="artist">{{ reservation.vinyl.artist }}</p>
+                    </div>
+                </div>
+
+                {# Section Enseigne #}
+                <div class="detail-section">
+                    <h3><i class="fas fa-store"></i> Enseigne</h3>
+                    <p><strong>{{ reservation.store.name }}</strong></p>
+                    <p class="address">{{ reservation.store.address }}</p>
+                </div>
+
+                {# Infos Complémentaires #}
+                <div class="detail-section">
+                    <h3><i class="fas fa-info-circle"></i> Informations</h3>
+                    <p><strong>Quantité :</strong> {{ reservation.quantity|default(1) }}</p>
+                    <p><strong>Créée le :</strong> {{ reservation.createdAt|date('d/m/Y H:i') }}</p>
+                    <p><strong>Client :</strong> {{ reservation.client.fullname }}</p>
+                </div>
+            </div>
+
+            <div class="info-banner">
+                <i class="fas fa-exclamation-triangle"></i>
+                Vous avez <strong>7 jours</strong> pour venir récupérer votre réservation à l'enseigne indiquée.
+            </div>
+
+            <div class="detail-actions">
+                <a href="{{ path('app_reservation_index') }}" class="btn-back">
+                    <i class="fas fa-arrow-left"></i> Retour aux réservations
+                </a>
+
+                {# Boutons pour le client propriétaire de la réservation #}
+                {% if is_granted('ROLE_USER') and app.user == reservation.client %}
+                    <a href="{{ path('app_catalog') }}" class="btn-continue">
+                        Continuer mes achats
+                    </a>
+                    {% if reservation.status == 'pending' %}
+                        <form method="POST" action="{{ path('app_reservation_cancel', {id: reservation.id}) }}" style="display: inline;">
+                            <button type="submit" class="btn btn-warning" onclick="return confirm('Êtes-vous sûr d\'annuler cette réservation?');">
+                                <i class="fas fa-times"></i> Annuler ma réservation
+                            </button>
+                        </form>
+                    {% endif %}
+                {% endif %}
+
+                {# Boutons pour le gérant du magasin #}
+                {% if is_granted('ROLE_STORE') and app.user.store == reservation.store %}
+                    {% if reservation.status == 'pending' %}
+                        <form method="POST" action="{{ path('app_store_manager_validate_reservation', {id: reservation.id}) }}" style="display: inline;">
+                            <button type="submit" class="btn btn-success">
+                                <i class="fas fa-check"></i> Valider
+                            </button>
+                        </form>
+                        <form method="POST" action="{{ path('app_store_manager_reject_reservation', {id: reservation.id}) }}" style="display: inline;">
+                            <button type="submit" class="btn btn-danger" onclick="return confirm('Êtes-vous sûr de vouloir rejeter cette réservation?');">
+                                <i class="fas fa-times"></i> Rejeter
+                            </button>
+                        </form>
+                    {% endif %}
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <style>
+        .reservation-detail-page { background-color: #F2EFE9; min-height: 90vh; padding: 40px 20px; font-family: 'Merriweather', serif; }
+        .detail-card { max-width: 800px; margin: 0 auto; background: white; border-radius: 8px; padding: 40px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
+
+        .detail-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #3D0D0D; padding-bottom: 20px; margin-bottom: 30px; }
+        .detail-header h1 { font-family: 'Playfair Display', serif; color: #3D0D0D; margin: 0; font-style: italic; }
+
+        .detail-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 30px; margin-bottom: 30px; }
+        .detail-section h3 { font-family: 'Playfair Display', serif; font-size: 1.1rem; color: #3D0D0D; border-bottom: 1px solid #eee; padding-bottom: 10px; margin-bottom: 15px; }
+
+        .vinyl-info .title { font-weight: bold; font-size: 1.2rem; margin: 0; }
+        .vinyl-info .artist { color: #666; font-style: italic; }
+
+        .status-badge { padding: 8px 16px; border-radius: 20px; color: white; font-weight: bold; font-size: 0.8rem; }
+        .badge-pending { background-color: #D4AF37; }
+        .badge-collected { background-color: #A8A8A8; }
+
+        .info-banner { background-color: #fcf8e3; border: 1px solid #faf2cc; color: #8a6d3b; padding: 15px; border-radius: 4px; text-align: center; margin-bottom: 30px; font-size: 0.9rem; }
+
+        .detail-actions { display: flex; justify-content: space-between; align-items: center; gap: 10px; border-top: 1px solid #eee; padding-top: 20px; flex-wrap: wrap; }
+        .btn-back { color: #3D0D0D; text-decoration: none; font-weight: bold; }
+        .btn-continue { color: #631D22; text-decoration: none; font-style: italic; }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-success {
+            background-color: #28a745;
+            color: white;
+        }
+        .btn-success:hover {
+            background-color: #218838;
+        }
+
+        .btn-danger {
+            background-color: #dc3545;
+            color: white;
+        }
+        .btn-danger:hover {
+            background-color: #c82333;
+        }
+
+        .btn-warning {
+            background-color: #ffc107;
+            color: #333;
+        }
+        .btn-warning:hover {
+            background-color: #e0a800;
+        }
+    </style>
+{% endblock %}

@@ -1,0 +1,128 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Pré-ventes{% endblock %}
+
+{% block body %}
+<div class="preorder-container">
+    <h1>🎵 Pré-ventes disponibles</h1>
+
+    {% if app.user %}
+        <p><a href="{{ path('app_preorder_my_list') }}" class="btn">Mes pré-commandes</a></p>
+    {% endif %}
+
+    {% if preorders is empty %}
+        <p>Aucune pré-vente disponible pour le moment.</p>
+    {% else %}
+        <div class="preorder-list">
+            {% for preorder in preorders %}
+                <div class="preorder-card">
+                    <h3>{{ preorder.vinyl.title }}</h3>
+                    <p><strong>Artiste :</strong> {{ preorder.vinyl.artist }}</p>
+                    {% if preorder.vinyl.coverImage %}
+                        <img src="{{ asset(preorder.vinyl.coverImage) }}" alt="{{ preorder.vinyl.title }}" class="preorder-cover">
+                    {% endif %}
+                    <p><strong>Statut :</strong>
+                        {% if preorder.status == 'pending' %}
+                            <span class="badge badge-warning">En attente</span>
+                        {% elseif preorder.status == 'confirmed' %}
+                            <span class="badge badge-success">Confirmée</span>
+                        {% else %}
+                            <span class="badge badge-danger">Annulée</span>
+                        {% endif %}
+                    </p>
+                    <p><strong>Ajoutée le :</strong> {{ preorder.createdAt|date('d/m/Y') }}</p>
+
+                    {% if app.user %}
+                        {% if preorder.status == 'pending' %}
+                            <form method="POST" action="{{ path('app_preorder_new', {vinyl_id: preorder.vinyl.id}) }}" style="display:inline;">
+                                <button class="btn btn-primary">Pré-commander</button>
+                            </form>
+                        {% endif %}
+                    {% else %}
+                        <p><a href="{{ path('app_login') }}">Connectez-vous</a> pour pré-commander.</p>
+                    {% endif %}
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+</div>
+
+<style>
+    .preorder-container {
+        padding: 20px;
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+
+    .preorder-list {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: 20px;
+        margin-top: 20px;
+    }
+
+    .preorder-card {
+        border: 1px solid #ddd;
+        padding: 15px;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        text-align: center;
+    }
+
+    .preorder-cover {
+        width: 100%;
+        height: auto;
+        max-height: 200px;
+        margin: 10px 0;
+        border-radius: 4px;
+    }
+
+    .badge {
+        display: inline-block;
+        padding: 5px 10px;
+        border-radius: 4px;
+        font-size: 0.85rem;
+        font-weight: bold;
+    }
+
+    .badge-warning {
+        background-color: #ffc107;
+        color: #000;
+    }
+
+    .badge-success {
+        background-color: #28a745;
+        color: #fff;
+    }
+
+    .badge-danger {
+        background-color: #dc3545;
+        color: #fff;
+    }
+
+    .btn {
+        display: inline-block;
+        padding: 10px 20px;
+        background-color: #007bff;
+        color: white;
+        text-decoration: none;
+        border-radius: 4px;
+        border: none;
+        cursor: pointer;
+        margin-top: 10px;
+    }
+
+    .btn:hover {
+        background-color: #0056b3;
+    }
+
+    .btn-primary {
+        background-color: #28a745;
+    }
+
+    .btn-primary:hover {
+        background-color: #218838;
+    }
+</style>
+{% endblock %}
+

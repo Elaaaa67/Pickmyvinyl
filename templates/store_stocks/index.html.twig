@@ -1,0 +1,147 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Gestion des stocks - {{ store.name }}{% endblock %}
+
+{% block body %}
+<div class="store-stocks-container">
+    <h1>📦 Gestion des stocks - {{ store.name }}</h1>
+
+    {% if stocks is empty %}
+        <div class="alert alert-info">
+            <p>Aucun stock pour le moment dans votre enseigne.</p>
+        </div>
+    {% else %}
+        <table class="stocks-table">
+            <thead>
+                <tr>
+                    <th>Vinyle</th>
+                    <th>Artiste</th>
+                    <th>Quantité actuelle</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for stock in stocks %}
+                    <tr>
+                        <td><strong>{{ stock.vinyl.title }}</strong></td>
+                        <td>{{ stock.vinyl.artist }}</td>
+                        <td>
+                            <span class="badge badge-info">{{ stock.quantity }} unité{{ stock.quantity > 1 ? 's' : '' }}</span>
+                        </td>
+                        <td>
+                            <a href="{{ path('app_store_stocks_edit', {id: stock.id}) }}" class="btn btn-sm btn-warning">Modifier</a>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% endif %}
+
+    <p><a href="{{ path('app_vinyl_store_index') }}" class="btn btn-secondary">← Retour aux vinyles</a></p>
+</div>
+
+<style>
+    .store-stocks-container {
+        padding: 20px;
+        max-width: 1000px;
+        margin: 0 auto;
+    }
+
+    .stocks-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+        background: white;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        border-radius: 8px;
+        overflow: hidden;
+    }
+
+    .stocks-table thead {
+        background-color: #f8f9fa;
+        border-bottom: 2px solid #ddd;
+    }
+
+    .stocks-table th {
+        padding: 15px;
+        text-align: left;
+        font-weight: bold;
+        color: #333;
+    }
+
+    .stocks-table td {
+        padding: 12px 15px;
+        border-bottom: 1px solid #eee;
+    }
+
+    .stocks-table tbody tr:hover {
+        background-color: #f5f5f5;
+    }
+
+    .badge {
+        display: inline-block;
+        padding: 5px 10px;
+        border-radius: 4px;
+        font-size: 0.85em;
+        font-weight: bold;
+    }
+
+    .badge-info {
+        background-color: #17a2b8;
+        color: white;
+    }
+
+    .btn {
+        display: inline-block;
+        padding: 8px 12px;
+        background-color: #007bff;
+        color: white;
+        text-decoration: none;
+        border-radius: 4px;
+        border: none;
+        cursor: pointer;
+        font-size: 0.9em;
+        text-align: center;
+        transition: background-color 0.2s;
+    }
+
+    .btn:hover {
+        background-color: #0056b3;
+    }
+
+    .btn-sm {
+        padding: 5px 10px;
+        font-size: 0.85em;
+    }
+
+    .btn-warning {
+        background-color: #ffc107;
+        color: black;
+    }
+
+    .btn-warning:hover {
+        background-color: #e0a800;
+    }
+
+    .btn-secondary {
+        background-color: #6c757d;
+    }
+
+    .btn-secondary:hover {
+        background-color: #5a6268;
+    }
+
+    .alert {
+        padding: 15px;
+        border-radius: 4px;
+        margin: 20px 0;
+    }
+
+    .alert-info {
+        background-color: #d1ecf1;
+        color: #0c5460;
+        border: 1px solid #bee5eb;
+    }
+</style>
+{% endblock %}
+

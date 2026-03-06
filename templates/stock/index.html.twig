@@ -1,0 +1,32 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Stocks{% endblock %}
+
+{% block body %}
+<h1>Stocks</h1>
+<p><a href="{{ path('app_stock_new') }}">Ajouter un stock</a></p>
+<table>
+    <thead><tr><th>ID</th><th>Vinyle</th><th>Boutique</th><th>Quantité</th><th>Actions</th></tr></thead>
+    <tbody>
+    {% for st in stocks %}
+        <tr>
+            <td>{{ st.id }}</td>
+            <td>{{ st.vinyl ? st.vinyl.title : '—' }}</td>
+            <td>{{ st.store ? st.store.name : '—' }}</td>
+            <td>{{ st.quantity }}</td>
+            <td>
+                <a href="{{ path('app_stock_show', {id: st.id}) }}">Voir</a>
+                <a href="{{ path('app_stock_edit', {id: st.id}) }}">Éditer</a>
+                <form method="post" action="{{ path('app_stock_delete', {id: st.id}) }}" style="display:inline">
+                    <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ st.id) }}">
+                    <button>Supprimer</button>
+                </form>
+            </td>
+        </tr>
+    {% else %}
+        <tr><td colspan="5">Aucun stock.</td></tr>
+    {% endfor %}
+    </tbody>
+</table>
+{% endblock %}
+

@@ -1,0 +1,82 @@
+{% block email_body %}
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <style>
+            body {
+                font-family: 'Merriweather', serif;
+                color: #333;
+                line-height: 1.6;
+            }
+            .container {
+                max-width: 600px;
+                margin: 0 auto;
+                padding: 20px;
+                background: #f8f9fa;
+            }
+            .header {
+                background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+                color: white;
+                padding: 30px;
+                text-align: center;
+                border-radius: 8px 8px 0 0;
+            }
+            .content {
+                background: white;
+                padding: 30px;
+                border-radius: 0 0 8px 8px;
+            }
+            .info-box {
+                background: #f0f0f0;
+                padding: 20px;
+                border-left: 4px solid #dc3545;
+                margin: 20px 0;
+                border-radius: 4px;
+            }
+            .footer {
+                text-align: center;
+                padding: 20px;
+                color: #666;
+                font-size: 0.9rem;
+                border-top: 1px solid #ddd;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <div class="header">
+                <h1>Réservation Annulée</h1>
+                <p>Votre réservation a été supprimée</p>
+            </div>
+
+            <div class="content">
+                <p>Bonjour {{ client.email }},</p>
+
+                <p>Votre réservation a été annulée.</p>
+
+                <div class="info-box">
+                    <strong>Numéro de réservation:</strong> #{{ reservation.id }}<br>
+                    <strong>Vinyle:</strong> {{ vinyl.title|default('N/A') }}<br>
+                    <strong>Magasin:</strong> {{ store.name|default('N/A') }}
+                </div>
+
+                <h2 style="color: #dc3545;">Ce que cela signifie</h2>
+                <ul>
+                    <li>Votre réservation n'est plus valide</li>
+                    <li>Le vinyle reste disponible pour les autres clients</li>
+                    <li>Vous pouvez faire une nouvelle réservation à tout moment</li>
+                </ul>
+
+                <p style="color: #666; font-size: 0.9rem; margin-top: 30px;">
+                    Si vous avez des questions ou si cette annulation est une erreur, veuillez nous contacter.
+                </p>
+            </div>
+
+            <div class="footer">
+                <p>&copy; 2026 PickMyVinyl. Tous droits réservés.</p>
+            </div>
+        </div>
+    </body>
+    </html>
+{% endblock %}
+

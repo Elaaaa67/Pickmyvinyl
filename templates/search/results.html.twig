@@ -1,0 +1,200 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Résultats de recherche - {{ query }}{% endblock %}
+
+{% block body %}
+<div class="search-results-page">
+    <div class="container">
+        <h1>Résultats de recherche</h1>
+
+        {% if query is empty %}
+            <p class="text-muted">Veuillez entrer un terme de recherche (minimum 3 caractères).</p>
+        {% elseif query|length < 3 %}
+            <p class="text-muted">Votre recherche doit contenir au moins 3 caractères.</p>
+        {% elseif results is empty %}
+            <p class="text-muted">Aucun résultat trouvé pour « <strong>{{ query }}</strong> ».</p>
+        {% else %}
+            <p class="search-info">
+                {{ results|length }} résultat(s) trouvé(s) pour « <strong>{{ query }}</strong> »
+            </p>
+
+            <div class="vinyl-grid">
+                {% for vinyl in results %}
+                    <div class="vinyl-card">
+                        <div class="vinyl-image">
+                            {% if vinyl.thumb is defined or vinyl.cover_image is defined %}
+                                <img src="{{ vinyl.thumb|default(vinyl.cover_image|default('')) }}" alt="{{ vinyl.title|default('Vinyle') }}">
+                            {% else %}
+                                <img src="{{ asset('images/pickmyvinyl.png') }}" alt="Image par défaut">
+                            {% endif %}
+                        </div>
+                        <div class="vinyl-info">
+                            <h3 class="vinyl-title">{{ vinyl.title|default('Titre inconnu') }}</h3>
+                            {% if vinyl.year is defined and vinyl.year %}
+                                <p class="vinyl-year">{{ vinyl.year }}</p>
+                            {% endif %}
+                            {% if vinyl.label is defined and vinyl.label %}
+                                <p class="vinyl-label">
+                                    {% if vinyl.label is iterable %}
+                                        {{ vinyl.label[0]|default(vinyl.label|join(', ')) }}
+                                    {% else %}
+                                        {{ vinyl.label }}
+                                    {% endif %}
+                                </p>
+                            {% endif %}
+                            <div class="vinyl-actions">
+                                <a href="{{ path('app_vinyl_detail', {id: vinyl.id}) }}" class="btn btn-outline-primary btn-sm">
+                                    <i class="fas fa-eye"></i> Détails
+                                </a>
+                                {% if is_granted('ROLE_USER') %}
+                                    <form method="POST" action="{{ path('app_cart_add') }}" class="d-inline">
+                                        <input type="hidden" name="vinylId" value="{{ vinyl.id }}">
+                                        <input type="hidden" name="title" value="{{ vinyl.title|default('Vinyle inconnu') }}">
+                                        <input type="hidden" name="artist" value="{{ vinyl.artists[0].name|default('Artiste inconnu') if vinyl.artists is defined else 'Artiste inconnu' }}">
+                                        <input type="hidden" name="coverImage" value="{{ vinyl.thumb|default(vinyl.cover_image|default('')) }}">
+                                        <input type="hidden" name="quantity" value="1">
+                                        <button type="submit" class="btn btn-primary btn-sm">
+                                            <i class="fas fa-shopping-cart"></i> Panier
+                                        </button>
+                                    </form>
+                                {% else %}
+                                    <a href="{{ path('app_login') }}" class="btn btn-primary btn-sm">
+                                        <i class="fas fa-sign-in-alt"></i> Connexion
+                                    </a>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<style>
+.search-results-page {
+    padding: 2rem 0;
+}
+
+.search-results-page .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 1rem;
+}
+
+.search-results-page h1 {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+    color: #333;
+}
+
+.search-info {
+    margin-bottom: 2rem;
+    font-size: 1.1rem;
+    color: #666;
+}
+
+.vinyl-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 2rem;
+    margin-top: 2rem;
+}
+
+.vinyl-card {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    overflow: hidden;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.vinyl-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.vinyl-image {
+    width: 100%;
+    height: 250px;
+    overflow: hidden;
+    background: #f5f5f5;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.vinyl-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.vinyl-info {
+    padding: 1.5rem;
+}
+
+.vinyl-title {
+    font-size: 1.1rem;
+    margin: 0 0 0.5rem 0;
+    color: #333;
+}
+
+.vinyl-year {
+    margin: 0.25rem 0;
+    color: #666;
+    font-size: 0.9rem;
+}
+
+.vinyl-label {
+    margin: 0.25rem 0 1rem 0;
+    color: #888;
+    font-size: 0.85rem;
+}
+
+.vinyl-actions {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 1rem;
+}
+
+.vinyl-title {
+    font-size: 1rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    color: #333;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.vinyl-year, .vinyl-label {
+    font-size: 0.875rem;
+    color: #666;
+    margin-bottom: 0.25rem;
+}
+
+.btn-primary {
+    background: #007bff;
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    text-decoration: none;
+    display: inline-block;
+    margin-top: 0.5rem;
+    border: none;
+    cursor: pointer;
+}
+
+.btn-primary:hover {
+    background: #0056b3;
+}
+
+.text-muted {
+    color: #6c757d;
+    font-size: 1.1rem;
+}
+</style>
+{% endblock %}
+

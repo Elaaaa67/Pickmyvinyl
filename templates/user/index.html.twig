@@ -1,0 +1,15 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Utilisateurs{% endblock %}
+
+{% block body %}
+<h1>Utilisateurs</h1>
+<ul>
+    {% for u in users %}
+        <li>{{ u.email }} (<a href="{{ path('app_user_show', {id: u.id}) }}">Voir</a> | <a href="{{ path('app_user_edit', {id: u.id}) }}">Éditer</a>)</li>
+    {% else %}
+        <li>Aucun utilisateur.</li>
+    {% endfor %}
+</ul>
+{% endblock %}
+

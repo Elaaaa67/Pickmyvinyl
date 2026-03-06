@@ -1,0 +1,12 @@
+{% if value == 'pending' %}
+    <span class="badge badge-warning">En attente</span>
+{% elseif value == 'confirmed' %}
+    <span class="badge badge-success">Confirmée</span>
+{% elseif value == 'cancelled' %}
+    <span class="badge badge-danger">Annulée</span>
+{% elseif value == 'rejected' %}
+    <span class="badge badge-secondary">Rejetée</span>
+{% else %}
+    <span class="badge badge-light">{{ value }}</span>
+{% endif %}
+

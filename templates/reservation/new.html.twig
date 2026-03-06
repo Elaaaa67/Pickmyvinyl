@@ -1,0 +1,372 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Finaliser la réservation - Pick My Vinyl{% endblock %}
+
+{% block body %}
+    <div class="reservation-container py-5">
+        <div class="container">
+            <header class="section-header mb-5">
+                <h1 class="display-4"><i class="fas fa-file-signature"></i> Finaliser ma réservation</h1>
+                <p class="lead">Sélectionnez les pépites que vous souhaitez bloquer en magasin.</p>
+            </header>
+
+            {% if cartItems|length > 0 %}
+                <div class="row g-4">
+                    {# Colonne Gauche : Sélection des vinyles #}
+                    <div class="col-lg-7">
+                        <div class="glass-card mb-4">
+                            <div class="card-header-custom">
+                                <h5><i class="fas fa-list-ul"></i> Vos articles disponibles</h5>
+                                <span class="badge-count">{{ cartItems|length }} items</span>
+                            </div>
+                            <div class="card-body p-0">
+                                <div class="vinyl-selection-list">
+                                    {% for item in cartItems %}
+                                        <div class="vinyl-selectable-row">
+                                            <input type="checkbox" id="vinyl_{{ item.vinylId }}" class="vinyl-checkbox"
+                                                   value="{{ item.vinylId }}"
+                                                   data-title="{{ item.title }}"
+                                                   data-quantity="{{ item.quantity }}" style="cursor: pointer;">
+                                            <label for="vinyl_{{ item.vinylId }}" class="row-content" style="display: flex; align-items: center; gap: 15px; padding: 15px; cursor: pointer; flex: 1;">
+                                                <span class="vinyl-img-wrapper" style="flex-shrink: 0;">
+                                                    {% if item.coverImage %}
+                                                        <img src="{{ item.coverImage }}" alt="{{ item.title }}" style="width: 60px; height: 60px; object-fit: cover; border-radius: 4px;">
+                                                    {% else %}
+                                                        <span class="img-placeholder" style="width: 60px; height: 60px; background: #f0f0f0; display: flex; align-items: center; justify-content: center; border-radius: 4px;"><i class="fas fa-record-vinyl"></i></span>
+                                                    {% endif %}
+                                                </span>
+
+                                                <span class="vinyl-info" style="flex: 1;">
+                                                    <span class="vinyl-title" style="display: block; margin: 0 0 5px 0; font-weight: bold;">{{ item.title }}</span>
+                                                    <span class="vinyl-artist" style="display: block; margin: 0 0 8px 0; color: #666; font-size: 0.9rem;">{{ item.artist }}</span>
+                                                    <span class="qty-tag" style="display: inline-block; background: #007bff; color: white; padding: 3px 8px; border-radius: 3px; font-size: 0.8rem;">Quantité : {{ item.quantity }}</span>
+                                                </span>
+                                            </label>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {# Colonne Droite : Formulaire & Recap #}
+                    <div class="col-lg-5">
+                        <div class="sticky-top" style="top: 20px;">
+                            <form method="POST" id="reservationForm" class="glass-card p-4">
+                                <h4 class="mb-4 font-serif">Options de retrait</h4>
+
+                                <div class="form-floating mb-4 custom-form-group">
+                                    {{ form_widget(form.store, {'attr': {'class': 'form-select select-bordeaux'}}) }}
+                                    <label for="{{ form.store.vars.id }}">Choisir mon magasin Pick My Vinyl</label>
+                                    {{ form_errors(form.store) }}
+                                </div>
+
+                                <div class="recap-box mb-4">
+                                    <h6 class="text-uppercase small fw-bold mb-3 text-muted">Récapitulatif de sélection</h6>
+                                    <div id="selectedVinylsList" class="empty-recap">
+                                        <p>Aucun vinyle sélectionné</p>
+                                    </div>
+                                </div>
+
+                                <div id="hiddenVinyls"></div>
+
+                                <button type="submit" class="btn-primary-large w-100 mb-3" id="submitBtn" disabled>
+                                    <i class="fas fa-calendar-check"></i> Confirmer la réservation
+                                </button>
+
+                                <a href="{{ path('app_cart_show') }}" class="btn-modifier-panier">
+                                    <i class="fas fa-undo"></i> Modifier le panier
+                                </a>
+                                {{ form_end(form, {'render_rest': false}) }}
+
+                            </form>
+
+                            <div class="info-alert mt-4">
+                                <i class="fas fa-clock"></i>
+                                <p>Vos vinyles seront mis de côté pendant <strong>7 jours</strong> après validation.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {# État Vide #}
+                <div class="empty-state text-center py-5">
+                    <div class="empty-icon"><i class="fas fa-shopping-basket"></i></div>
+                    <h2>Votre bac est vide</h2>
+                    <p>Ajoutez des vinyles au panier pour pouvoir les réserver.</p>
+                    <a href="{{ path('app_vinyl_index') }}" class="btn-primary-large mt-3">Retour au catalogue</a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <script>
+        const checkboxes = document.querySelectorAll('.vinyl-checkbox');
+        const selectedVinylsList = document.getElementById('selectedVinylsList');
+        const hiddenVinyls = document.getElementById('hiddenVinyls');
+        const submitBtn = document.getElementById('submitBtn');
+        const reservationForm = document.getElementById('reservationForm');
+
+        function updateSelection() {
+            const selected = Array.from(checkboxes).filter(cb => cb.checked);
+            const selectedCount = selected.length;
+
+            // Créer la liste des vinyls sélectionnés
+            if (selectedCount > 0) {
+                let html = '<ul style="margin: 0; list-style: none; padding: 0;">';
+                selected.forEach((checkbox, index) => {
+                    const title = checkbox.dataset.title;
+                    const quantity = checkbox.dataset.quantity;
+                    html += `<li style="padding: 8px 0; border-bottom: 1px solid #e0e0e0;">
+                        <strong>${index + 1}.</strong> ${title} <span style="font-size: 0.85rem; color: #666;">(Qté: ${quantity})</span>
+                    </li>`;
+                });
+                html += '</ul>';
+                selectedVinylsList.innerHTML = html;
+            } else {
+                selectedVinylsList.innerHTML = '<p>Aucun vinyle sélectionné</p>';
+            }
+
+            // Créer les champs cachés pour les vinyls sélectionnés
+            hiddenVinyls.innerHTML = '';
+            selected.forEach((checkbox, index) => {
+                const vinylId = checkbox.value;
+                const quantity = checkbox.dataset.quantity;
+                hiddenVinyls.innerHTML += `
+                    <input type="hidden" name="selectedVinyls[${index}][vinylId]" value="${vinylId}">
+                    <input type="hidden" name="selectedVinyls[${index}][quantity]" value="${quantity}">
+                `;
+            });
+
+            // Activer/désactiver le bouton
+            submitBtn.disabled = selectedCount === 0;
+
+            if (selectedCount > 0) {
+                submitBtn.textContent = `✓ Confirmer ${selectedCount} réservation${selectedCount > 1 ? 's' : ''}`;
+            } else {
+                submitBtn.textContent = '✓ Confirmer la réservation';
+            }
+        }
+
+        // Ajouter les écouteurs sur les checkboxes
+        checkboxes.forEach(checkbox => {
+            checkbox.addEventListener('change', updateSelection);
+        });
+
+        // Gestion du formulaire
+        reservationForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const selectedVinyls = Array.from(checkboxes)
+                .filter(cb => cb.checked)
+                .map(cb => ({
+                    vinylId: cb.value,
+                    quantity: cb.dataset.quantity
+                }));
+
+            if (selectedVinyls.length === 0) {
+                alert('Veuillez sélectionner au moins un vinyle.');
+                return;
+            }
+
+            // Récupérer le magasin sélectionné
+            const storeSelect = document.querySelector('select[name="reservation[store]"]');
+            if (!storeSelect || !storeSelect.value) {
+                alert('Veuillez sélectionner un magasin.');
+                return;
+            }
+
+            // Soumettre chaque vinyle comme réservation séparée
+            selectedVinyls.forEach(vinyl => {
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = '{{ path("app_reservation_create_multiple") }}';
+                form.innerHTML = `
+                    <input type="hidden" name="vinylId" value="${vinyl.vinylId}">
+                    <input type="hidden" name="quantity" value="${vinyl.quantity}">
+                    <input type="hidden" name="storeId" value="${storeSelect.value}">
+                `;
+                document.body.appendChild(form);
+                form.submit();
+            });
+        });
+
+        // Initialiser la sélection au chargement
+        updateSelection();
+    </script>
+    <style>
+        :root {
+            --bordeaux: #3D0D0D;
+            --bordeaux-light: #631D22;
+            --cream: #fcfbf9;
+            --gold: #D4AF37;
+            --text-muted: #6c757d;
+            --glass-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+        }
+
+        /* Centrage et limitation de largeur */
+        .reservation-container .container {
+            max-width: 900px; /* Moins large pour plus d'élégance */
+            margin: 0 auto;
+        }
+
+        .section-header {
+            text-align: center; /* Centre le titre */
+            margin-bottom: 2rem !important;
+        }
+
+        .section-header h1 {
+            font-family: 'Playfair Display', serif;
+            color: var(--bordeaux);
+            font-size: 2rem; /* Moins gros */
+            font-weight: 700;
+        }
+
+        /* Cartes plus fines */
+        .glass-card {
+            background: white;
+            border: 1px solid rgba(0, 0, 0, 0.08);
+            border-radius: 10px;
+            box-shadow: var(--glass-shadow);
+        }
+
+        .card-header-custom {
+            background: var(--bordeaux);
+            color: white;
+            padding: 0.75rem 1.25rem; /* Plus compact */
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .card-header-custom h5 {
+            font-size: 1rem;
+            margin: 0;
+        }
+
+        /* Lignes de Vinyles plus petites */
+        .vinyl-selectable-row {
+            padding: 10px 15px; /* Moins d'espace interne */
+        }
+
+        .row-content img, .img-placeholder {
+            width: 45px !important; /* Image plus petite */
+            height: 45px !important;
+        }
+
+        .vinyl-title {
+            font-size: 0.95rem !important;
+            margin-bottom: 2px !important;
+        }
+
+        .vinyl-artist {
+            font-size: 0.8rem !important;
+        }
+
+        .qty-tag {
+            font-size: 0.7rem !important;
+            padding: 2px 6px !important;
+        }
+
+        /* Récapitulatif et Formulaire */
+        .recap-box {
+            padding: 1rem;
+            font-size: 0.9rem;
+        }
+
+        .form-floating > .form-control, .form-floating > .form-select {
+            height: calc(3rem + 2px); /* Moins haut */
+            line-height: 1.25;
+            font-size: 0.9rem;
+        }
+
+        .form-floating > label {
+            font-size: 0.85rem;
+            padding: 0.75rem;
+        }
+
+        <style>
+         :root {
+             --bordeaux: #3D0D0D;
+             --bordeaux-light: #631D22;
+             --gold: #D4AF37;
+             --cream: #FDFCF9;
+         }
+
+        /* Centrage de la page */
+        .reservation-container .container {
+            max-width: 850px;
+            margin: 0 auto;
+        }
+
+        /* Style du bouton Confirmer (le gros bouton marron) */
+        .btn-primary-large {
+            background-color: var(--bordeaux);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 12px 20px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .btn-primary-large:hover:not(:disabled) {
+            background-color: var(--bordeaux-light);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+
+        /* STYLE DE "MODIFIER LE PANIER" (Correction image 3) */
+        .btn-modifier-panier {
+            display: inline-block;
+            margin-top: 15px;
+            color: var(--bordeaux);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.9rem;
+            padding: 8px 16px;
+            border: 1px solid transparent;
+            transition: all 0.2s;
+            width: 100%;
+            text-align: center;
+        }
+
+        .btn-modifier-panier:hover {
+            color: var(--gold);
+            background-color: rgba(61, 13, 13, 0.05);
+            border-radius: 5px;
+        }
+
+        /* Ajustement des lignes de vinyles */
+        .vinyl-selectable-row {
+            border-bottom: 1px solid #f0f0f0;
+            padding: 10px;
+            display: flex;
+            align-items: center;
+        }
+
+        .vinyl-checkbox {
+            width: 18px;
+            height: 18px;
+            margin-right: 15px;
+            accent-color: var(--bordeaux);
+        }
+
+        .qty-tag {
+            background-color: #007bff;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: bold;
+        }
+
+        /* Le bandeau de titre marron */
+        .card-header-custom {
+            background-color: var(--bordeaux) !important;
+            border-bottom: 2px solid var(--gold);
+            padding: 10px 20px;
+        }
+    </style>
+    </style>
+{% endblock %}

@@ -1,0 +1,106 @@
+²{% block email_body %}
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <style>
+            body {
+                font-family: 'Merriweather', serif;
+                color: #333;
+                line-height: 1.6;
+            }
+            .container {
+                max-width: 600px;
+                margin: 0 auto;
+                padding: 20px;
+                background: #f8f9fa;
+            }
+            .header {
+                background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+                color: white;
+                padding: 30px;
+                text-align: center;
+                border-radius: 8px 8px 0 0;
+            }
+            .content {
+                background: white;
+                padding: 30px;
+                border-radius: 0 0 8px 8px;
+            }
+            .info-box {
+                background: #f0f0f0;
+                padding: 20px;
+                border-left: 4px solid #28a745;
+                margin: 20px 0;
+                border-radius: 4px;
+            }
+            .cta-button {
+                background: #007bff;
+                color: white;
+                padding: 12px 30px;
+                text-decoration: none;
+                border-radius: 4px;
+                display: inline-block;
+                margin: 20px 0;
+            }
+            .footer {
+                text-align: center;
+                padding: 20px;
+                color: #666;
+                font-size: 0.9rem;
+                border-top: 1px solid #ddd;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <div class="header">
+                <h1>✓ Nouvelle Réservation</h1>
+                <p>Une nouvelle réservation a été effectuée dans votre magasin</p>
+            </div>
+
+            <div class="content">
+                <p>Bonjour,</p>
+
+                <p>Une nouvelle réservation a été confirmée pour votre magasin <strong>{{ store.name }}</strong>.</p>
+
+                <div class="info-box">
+                    <strong>Numéro de réservation:</strong> #{{ reservation.id }}<br>
+                    <strong>Date:</strong> {{ reservation.createdAt|date('d/m/Y à H:i') }}<br>
+                    <strong>Statut:</strong> {{ reservation.status }}
+                </div>
+
+                {% if vinyl %}
+                    <h2 style="color: #28a745;">Détails du Vinyle</h2>
+                    <div class="info-box">
+                        <strong>Titre:</strong> {{ vinyl.title }}<br>
+                        <strong>Artiste:</strong> {{ vinyl.artist|default('N/A') }}<br>
+                        {% if vinyl.year %}
+                            <strong>Année:</strong> {{ vinyl.year }}<br>
+                        {% endif %}
+                    </div>
+                {% endif %}
+
+                {% if client %}
+                    <h2 style="color: #28a745;">Client</h2>
+                    <div class="info-box">
+                        <strong>Email:</strong> {{ client.email }}<br>
+                    </div>
+                {% endif %}
+
+                <a href="https://pickmyvinyl.local/store-manager/reservations" class="cta-button">
+                    Voir toutes les réservations
+                </a>
+
+                <p style="color: #666; font-size: 0.9rem; margin-top: 30px;">
+                    Cet email a été envoyé automatiquement. Veuillez vous connecter à votre tableau de bord pour plus de détails.
+                </p>
+            </div>
+
+            <div class="footer">
+                <p>&copy; 2026 PickMyVinyl. Tous droits réservés.</p>
+            </div>
+        </div>
+    </body>
+    </html>
+{% endblock %}
+

@@ -1,0 +1,60 @@
+{# templates/catalog/detail.html.twig #}
+{% extends 'base.html.twig' %}
+
+{% block body %}
+    <div class="container">
+        <a href="{{ path('app_catalog') }}">← Retour au catalogue</a>
+
+        <div class="vinyl-detail-container" style="display: flex; gap: 40px; margin-top: 20px;">
+            {# Colonne Gauche : Image #}
+            <div class="vinyl-image">
+                <img src="{{ vinyl.images[0].uri|default(vinyl.thumb) }}"
+                     style="width: 100%; max-width: 500px; border-radius: 8px;">
+            </div>
+
+            {# Colonne Droite : Infos #}
+            <div class="vinyl-infos">
+                <h1>{{ vinyl.title }}</h1>
+                <h2>{{ vinyl.artists[0].name }}</h2>
+
+                <p><strong>Année :</strong> {{ vinyl.year }}</p>
+                <p><strong>Genre :</strong> {{ vinyl.genres|join(', ') }}</p>
+                <p><strong>Label :</strong> {{ vinyl.labels[0].name }}</p>
+
+                <h3>Tracklist :</h3>
+                <ul>
+                    {% for track in vinyl.tracklist %}
+                        <li>{{ track.position }} - {{ track.title }} ({{ track.duration }})</li>
+                    {% endfor %}
+                </ul>
+
+                <hr>
+
+                {# Ajouter au panier #}
+                <div class="stock-section">
+                    <h3>Ajouter au panier</h3>
+                    <form method="POST" action="{{ path('app_cart_add') }}">
+                        {# L'ID est crucial pour que le contrôleur sache quel vinyle ajouter #}
+                        <input type="hidden" name="vinylId" value="{{ vinyl.id }}">
+
+                        {# Quantité par défaut #}
+                        <input type="hidden" name="quantity" value="1">
+
+                        <button type="submit" class="btn btn-primary btn-lg" style="width: 100%;">
+                            <i class="fas fa-shopping-cart"></i> Ajouter au panier
+                        </button>
+                    </form>
+                </div>
+
+                <hr>
+
+                {# Disponibilité en magasin #}
+                <div class="stock-section">
+                    <h3>Disponibilité en magasin</h3>
+                    <p>Vous avez ajouté cet article au panier ? <br> Allez à <a href="{{ path('app_cart_show') }}">votre panier</a> pour voir la disponibilité par enseigne et créer une réservation.</p>
+                    <a href="{{ path('app_cart_show') }}" class="btn btn-outline-secondary">Voir le panier</a>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

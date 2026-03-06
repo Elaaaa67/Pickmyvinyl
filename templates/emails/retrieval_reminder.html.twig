@@ -1,0 +1,107 @@
+{% block email_body %}
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <style>
+            body {
+                font-family: 'Merriweather', serif;
+                color: #333;
+                line-height: 1.6;
+            }
+            .container {
+                max-width: 600px;
+                margin: 0 auto;
+                padding: 20px;
+                background: #f8f9fa;
+            }
+            .header {
+                background: linear-gradient(135deg, #ffc107 0%, #fd7e14 100%);
+                color: white;
+                padding: 30px;
+                text-align: center;
+                border-radius: 8px 8px 0 0;
+            }
+            .content {
+                background: white;
+                padding: 30px;
+                border-radius: 0 0 8px 8px;
+            }
+            .info-box {
+                background: #f0f0f0;
+                padding: 20px;
+                border-left: 4px solid #ffc107;
+                margin: 20px 0;
+                border-radius: 4px;
+            }
+            .cta-button {
+                background: #007bff;
+                color: white;
+                padding: 12px 30px;
+                text-decoration: none;
+                border-radius: 4px;
+                display: inline-block;
+                margin: 20px 0;
+            }
+            .footer {
+                text-align: center;
+                padding: 20px;
+                color: #666;
+                font-size: 0.9rem;
+                border-top: 1px solid #ddd;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <div class="header">
+                <h1>⏰ Rappel: Récupérez votre vinyle !</h1>
+                <p>Votre réservation arrive bientôt à expiration</p>
+            </div>
+
+            <div class="content">
+                <p>Bonjour {{ client.email }},</p>
+
+                <p>Vous avez toujours une réservation en attente de retrait !</p>
+
+                <div class="info-box">
+                    <strong>Numéro de réservation:</strong> #{{ reservation.id }}<br>
+                    <strong>Vinyle:</strong> {{ vinyl.title|default('N/A') }}<br>
+                    <strong>Réservé depuis:</strong> {{ reservation.createdAt|date('d/m/Y') }}<br>
+                    <strong>À récupérer avant:</strong> {{ reservation.createdAt|date_modify('+7 days')|date('d/m/Y') }}
+                </div>
+
+                {% if store %}
+                    <h2 style="color: #ff8c00;">Détails du magasin</h2>
+                    <div class="info-box">
+                        <strong>📍 {{ store.name }}</strong><br>
+                        {{ store.address|default('Adresse non disponible') }}<br>
+                        {% if store.phone %}
+                            📞 {{ store.phone }}
+                        {% endif %}
+                    </div>
+                {% endif %}
+
+                <h2 style="color: #ff8c00;">À savoir</h2>
+                <ul>
+                    <li>⚠️ Votre réservation expire dans 7 jours</li>
+                    <li>📅 Venez la récupérer pendant les horaires d'ouverture</li>
+                    <li>🎫 Présentez votre numéro de réservation: <strong>#{{ reservation.id }}</strong></li>
+                </ul>
+
+                <a href="https://pickmyvinyl.local/reservation/{{ reservation.id }}" class="cta-button">
+                    Voir ma réservation
+                </a>
+
+                <p style="color: #666; font-size: 0.9rem; margin-top: 30px;">
+                    Si vous avez des questions, n'hésitez pas à nous contacter.
+                </p>
+            </div>
+
+            <div class="footer">
+                <p>&copy; 2026 PickMyVinyl. Tous droits réservés.</p>
+            </div>
+        </div>
+    </body>
+    </html>
+{% endblock %}
+

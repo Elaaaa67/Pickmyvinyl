@@ -1,0 +1,40 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Stocks de la boutique{% endblock %}
+
+{% block body %}
+<h1>Stocks - {{ store.name }}</h1>
+
+<h2>Importer depuis Discogs</h2>
+<form method="post" action="{{ path('app_store_import_discogs', {id: store.id}) }}">
+    <label for="discogs_id">Discogs Release ID</label>
+    <input type="text" name="discogs_id" id="discogs_id" required>
+    <label for="quantity">Quantité</label>
+    <input type="number" name="quantity" id="quantity" value="1" min="1">
+    <input type="hidden" name="_token" value="{{ csrf_token('import' ~ store.id) }}">
+    <button>Importer</button>
+</form>
+
+<h2>Ajouter / Mettre à jour un vinyle</h2>
+{{ form_start(form) }}
+    {{ form_widget(form) }}
+    <button>Enregistrer</button>
+{{ form_end(form) }}
+
+<h2>Stocks actuels</h2>
+<table>
+    <thead><tr><th>Vinyle</th><th>Quantité</th></tr></thead>
+    <tbody>
+    {% for s in stocks %}
+        <tr>
+            <td>{{ s.vinyl ? s.vinyl.title : '—' }}</td>
+            <td>{{ s.quantity }}</td>
+        </tr>
+    {% else %}
+        <tr><td colspan="2">Aucun stock.</td></tr>
+    {% endfor %}
+    </tbody>
+</table>
+
+<p><a href="{{ path('app_store_show', {id: store.id}) }}">Retour boutique</a></p>
+{% endblock %}

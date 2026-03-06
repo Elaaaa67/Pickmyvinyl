@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="fr">
+    <head>
+        <meta charset="UTF-8">
+        <title>{% block title %}PickMyVinyl!{% endblock %}</title>
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@300;400;700&family=Playfair+Display:ital,wght@0,700;1,700;1,900&display=swap" rel="stylesheet">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVJkEZSMUkrQ6usKu8zIstOWilmQQ56w5wDOsLDA1tIstQc6+iUBCkpZkWPcJ7JibaG6f1m3mr0g==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+        <link rel="icon" href="images/pickmyvinyl.png" type="image/png">
+
+        {% block stylesheets %}
+        {% endblock %}
+
+        {% block javascripts %}
+            {% block importmap %}{{ importmap('app') }}{% endblock %}
+        {% endblock %}
+    </head>
+    <body>
+    <nav class="main-navbar">
+        <div class="nav-container">
+            {# Gauche : Liens principaux #}
+            <div class="nav-side">
+                <a href="{{ path('app_home') }}" class="nav-link">Accueil</a>
+                <a href="{{ path('app_catalog') }}" class="nav-link">Catalogue</a>
+
+                {# Les liens sensibles ne sont visibles que pour les utilisateurs connectés #}
+                {% if is_granted('ROLE_ADMIN') or is_granted('ROLE_STORE') %}
+                    {% if is_granted('ROLE_ADMIN') %}
+                        <a href="{{ path('app_store_index') }}" class="nav-link">Magasins</a>
+                        <a href="{{ path('app_reservation_index') }}" class="nav-link">Réservations</a>
+                        <a href="{{ path('admin') }}" class="nav-link">Dashboard</a>
+                    {% endif %}
+
+                    {%if is_granted('ROLE_STORE') and not is_granted('ROLE_ADMIN') %}
+                        <a href="{{ path('app_store_manager_dashboard') }}" class="nav-link">Dashboard Magasin</a>
+                    {% endif %}
+                {% endif %}
+
+                {% if is_granted('ROLE_USER') %}
+                    <a href="{{ path('app_cart_show') }}" class="nav-link">
+                        <i class="fas fa-shopping-cart"></i> Panier
+                    </a>
+                    <a href="{{ path('app_reservation_index') }}" class="nav-link">
+                        <i class="fas fa-list"></i> Réservations
+                    </a>
+                {% endif %}
+             </div>
+
+            {# Centre : Logo #}
+            <div class="nav-logo">
+                <img src="{{ asset('images/pickmyvinyl.png') }}" alt="Pick My Vinyl">
+            </div>
+
+            {# Droite : Recherche et Profil #}
+            <div class="nav-side">
+                 <div class="search-container">
+                    <form action="{{ path('app_search') }}" method="get" class="search-form">
+                        <div class="search-bar">
+                            <label for="search-input" class="visually-hidden"></label>
+                            <input type="text" id="search-input" name="q" placeholder="Recherchez un vinyle..." autocomplete="off" required minlength="3">
+                            <button type="submit" class="search-submit-btn">
+                                <i class="fas fa-search"></i>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+                <div class="nav-icons">
+                    {% if app.user %}
+                        {# Connecté : Lien vers le profil ou déconnexion #}
+                        <a href="{{ path('app_logout') }}" class="nav-link"><i class="fas fa-user-check" title="Déconnexion"></i> Déconnexion</a>
+                    {% else %}
+                        {# Déconnecté : Lien vers Connexion ET Inscription #}
+                        <a href="{{ path('app_login') }}" class="nav-link"><i class="fas fa-user" title="Connexion"></i> Connexion</a>
+                        <a href="{{ path('app_register') }}" class="nav-link"><i class="fas fa-user" title="Inscription"></i> S'inscrire</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </nav>
+        {% block body %}
+            {% for label, messages in app.flashes %}
+                {% for message in messages %}
+                    <div class="alert alert-{{ label == 'error' ? 'danger' : label }}"
+                         style="margin: 20px; padding: 15px; border-radius: 5px;">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endfor %}
+        {% endblock %}
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const searchInput = document.getElementById('search-input');
+
+            if (!searchInput) return;
+
+            // Autocomplétion avec Discogs lors de la frappe
+            searchInput.addEventListener('input', debounce(function(e) {
+                const query = e.target.value.trim();
+
+                if (query.length < 3) {
+                    return;
+                }
+
+                // Appel à l'API Discogs via notre endpoint
+                fetch('{{ path("api_search") }}?q=' + encodeURIComponent(query))
+                    .then(response => response.json())
+                    .then(data => {
+                        // Si des résultats arrivent, on peut afficher un petit aperçu
+                        // ou laisser l'utilisateur continuer la saisie normalement
+                        console.log('Suggestions Discogs:', data);
+                    })
+                    .catch(error => console.error('Erreur recherche:', error));
+            }, 300));
+
+            // Fonction de debounce pour limiter les requêtes
+            function debounce(func, wait) {
+                let timeout;
+                return function executedFunction(...args) {
+                    const later = () => {
+                        clearTimeout(timeout);
+                        func(...args);
+                    };
+                    clearTimeout(timeout);
+                    timeout = setTimeout(later, wait);
+                };
+            }
+        });
+    </script>
+    </body>
+</html>

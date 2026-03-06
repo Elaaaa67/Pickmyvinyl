@@ -1,0 +1,63 @@
+{# templates/security/login.html.twig #}
+
+
+{% block body %}
+    <div class="register-page"> {# On réutilise la même classe container pour l'alignement #}
+        <div class="register-card">
+            <header class="register-header">
+                <h1>Bon retour</h1>
+                <p>Connectez-vous pour accéder à votre collection ou gérer votre boutique.</p>
+            </header>
+
+            <form method="post" class="register-form">
+
+                {% if app.user %}
+                    <div class="mb-3">
+                        Vous êtes connecté en tant que {{ app.user.userIdentifier }},
+                        <a href="{{ path('app_logout') }}">Déconnexion</a>
+                    </div>
+                {% endif %}
+
+                <div class="form-group">
+                    <label for="inputEmail">Adresse Email</label>
+                    <input type="email" value="{{ last_username }}" name="email" id="inputEmail" class="form-control" autocomplete="email" placeholder="votre@email.com" required autofocus>
+                </div>
+
+                <div class="form-group">
+                    <label for="inputPassword">Mot de passe</label>
+                    <input type="password" name="password" id="inputPassword" class="form-control" autocomplete="current-password" placeholder="••••••••" required>
+                </div>
+
+
+                {# Optionnel : Se souvenir de moi #}
+                <div class="form-check" style="margin-bottom: 20px;">
+                    <input type="checkbox" name="_remember_me" id="_remember_me">
+                    <label for="_remember_me" style="font-weight: normal; display: inline;">Se souvenir de moi</label>
+                </div>
+
+                <button class="btn-register" type="submit">
+                    Se connecter
+                </button>
+            </form>
+
+            <div class="login-link">
+                Pas encore membre ? <a href="{{ path('app_register') }}">Créez un compte ici</a>
+            </div>
+        </div>
+    </div>
+
+    {# On réutilise le bloc style pour assurer la cohérence #}
+    <style>
+        /* Ces styles complètent ceux que tu as déjà dans ton CSS global ou register */
+        .register-page { min-height: 80vh; display: flex; align-items: center; justify-content: center; padding: 20px; }
+        .register-card { max-width: 450px; width: 100%; background: white; padding: 40px; border-radius: 8px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
+        .register-header h1 { font-family: 'Playfair Display', serif; color: #3D0D0D; margin-bottom: 10px; }
+        .form-group { margin-bottom: 20px; }
+        .form-group label { font-family: 'Merriweather', serif; font-weight: bold; font-size: 0.9rem; color: #555; display: block; margin-bottom: 8px; }
+        .form-control { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box; }
+        .btn-register { width: 100%; background: #3D0D0D; color: #F2EFE9; border: none; padding: 14px; font-family: 'Playfair Display', serif; font-size: 1.1rem; cursor: pointer; transition: 0.3s; }
+        .btn-register:hover { background: #631D22; }
+        .login-link { text-align: center; margin-top: 25px; font-size: 0.9rem; }
+        .login-link a { color: #3D0D0D; font-weight: bold; text-decoration: none; }
+    </style>
+{% endblock %}

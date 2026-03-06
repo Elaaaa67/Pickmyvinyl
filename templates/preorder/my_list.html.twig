@@ -1,0 +1,112 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Mes pré-commandes{% endblock %}
+
+{% block body %}
+<div class="preorder-container">
+    <h1>Mes pré-commandes</h1>
+
+    <p><a href="{{ path('app_preorder_index') }}" class="btn">← Retour aux pré-ventes</a></p>
+
+    {% if preorders is empty %}
+        <p>Vous n'avez aucune pré-commande.</p>
+    {% else %}
+        <table class="preorder-table">
+            <thead>
+                <tr>
+                    <th>Vinyle</th>
+                    <th>Artiste</th>
+                    <th>Statut</th>
+                    <th>Date</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for preorder in preorders %}
+                    <tr>
+                        <td>{{ preorder.vinyl.title }}</td>
+                        <td>{{ preorder.vinyl.artist }}</td>
+                        <td>
+                            {% if preorder.status == 'pending' %}
+                                <span class="badge badge-warning">En attente</span>
+                            {% elseif preorder.status == 'confirmed' %}
+                                <span class="badge badge-success">Confirmée</span>
+                            {% else %}
+                                <span class="badge badge-danger">Annulée</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ preorder.createdAt|date('d/m/Y H:i') }}</td>
+                        <td>
+                            {% if preorder.status == 'pending' %}
+                                <form method="POST" action="{{ path('app_preorder_cancel', {id: preorder.id}) }}" style="display:inline;">
+                                    <button class="btn btn-danger btn-sm" onclick="return confirm('Êtes-vous sûr ?')">Annuler</button>
+                                </form>
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% endif %}
+</div>
+
+<style>
+    .preorder-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+    }
+
+    .preorder-table thead {
+        background-color: #f8f9fa;
+    }
+
+    .preorder-table th,
+    .preorder-table td {
+        padding: 12px;
+        text-align: left;
+        border-bottom: 1px solid #ddd;
+    }
+
+    .preorder-table tbody tr:hover {
+        background-color: #f5f5f5;
+    }
+
+    .btn-sm {
+        padding: 5px 10px;
+        font-size: 0.85rem;
+    }
+
+    .btn-danger {
+        background-color: #dc3545;
+    }
+
+    .btn-danger:hover {
+        background-color: #c82333;
+    }
+
+    .badge {
+        display: inline-block;
+        padding: 5px 10px;
+        border-radius: 4px;
+        font-size: 0.85rem;
+        font-weight: bold;
+    }
+
+    .badge-warning {
+        background-color: #ffc107;
+        color: #000;
+    }
+
+    .badge-success {
+        background-color: #28a745;
+        color: #fff;
+    }
+
+    .badge-danger {
+        background-color: #dc3545;
+        color: #fff;
+    }
+</style>
+{% endblock %}
+

@@ -1,0 +1,328 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Réservations - {{ store.name }}{% endblock %}
+
+{% block body %}
+<div class="store-manager-page">
+    <div class="container">
+        <div class="page-header">
+            <h1><i class="fas fa-list"></i> Réservations du Magasin</h1>
+            <p class="subtitle">Magasin: <strong>{{ store.name }}</strong></p>
+        </div>
+
+        {% if reservations|length > 0 %}
+            <div class="reservations-list">
+                {% for reservation in reservations %}
+                    <div class="reservation-card">
+                        <div class="card-header">
+                            <div>
+                                <h3>#{{ reservation.id }} - {{ reservation.vinyl.title|default('Vinyle supprimé') }}</h3>
+                                <p class="client-info">
+                                    <i class="fas fa-user"></i> {{ reservation.client.email|default('N/A') }}
+                                </p>
+                            </div>
+                            <span class="status-badge status-{{ reservation.status|lower|replace({' ': '-'}) }}">
+                                {{ reservation.status }}
+                            </span>
+                        </div>
+
+                        <div class="card-body">
+                            <div class="info-row">
+                                <span class="label"><i class="fas fa-calendar"></i> Réservée le:</span>
+                                <span class="value">{{ reservation.createdAt|date('d/m/Y à H:i') }}</span>
+                            </div>
+                            {% if reservation.vinyl %}
+                                <div class="info-row">
+                                    <span class="label"><i class="fas fa-user"></i> Artiste:</span>
+                                    <span class="value">{{ reservation.vinyl.artist|default('N/A') }}</span>
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="card-footer">
+                            <a href="{{ path('app_reservation_show', {id: reservation.id}) }}" class="btn-mini">Voir détails</a>
+                            {% if reservation.status != 'Retirée' and reservation.status != 'Annulée' %}
+                                <form method="POST" action="{{ path('app_reservation_update_status', {id: reservation.id}) }}" style="display:inline;">
+                                    <input type="hidden" name="_token" value="{{ csrf_token('') }}">
+                                    <input type="hidden" name="status" value="Confirmée">
+                                    {% if reservation.status != 'Confirmée' %}
+                                        <button type="submit" class="btn-mini btn-success">Confirmer</button>
+                                    {% endif %}
+                                </form>
+                                <form method="POST" action="{{ path('app_reservation_update_status', {id: reservation.id}) }}" style="display:inline;">
+                                    <input type="hidden" name="_token" value="{{ csrf_token('') }}">
+                                    <input type="hidden" name="status" value="Retirée">
+                                    {% if reservation.status == 'Confirmée' %}
+                                        <button type="submit" class="btn-mini btn-info">Marquer retirée</button>
+                                    {% endif %}
+                                </form>
+                                <form method="POST" action="{{ path('app_reservation_update_status', {id: reservation.id}) }}" style="display:inline;">
+                                    <input type="hidden" name="_token" value="{{ csrf_token('') }}">
+                                    <input type="hidden" name="status" value="Annulée">
+                                    <button type="submit" class="btn-mini btn-danger" onclick="return confirm('Êtes-vous sûr ?');">Annuler</button>
+                                </form>
+                            {% endif %}
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="empty-state">
+                <i class="fas fa-inbox"></i>
+                <h2>Aucune réservation</h2>
+                <p>Aucune réservation pour votre magasin pour le moment.</p>
+            </div>
+        {% endif %}
+
+        <div class="back-link">
+            <a href="{{ path('app_store_manager_dashboard') }}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> Retour au dashboard
+            </a>
+        </div>
+    </div>
+</div>
+
+<style>
+    .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 1rem;
+    }
+
+    .store-manager-page {
+        padding: 2rem 0;
+        background: #f8f9fa;
+        min-height: 100vh;
+    }
+
+    .page-header {
+        background: white;
+        padding: 2rem;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        margin-bottom: 2rem;
+    }
+
+    .page-header h1 {
+        font-family: 'Playfair Display', serif;
+        font-size: 2rem;
+        color: #333;
+        margin: 0 0 0.5rem 0;
+    }
+
+    .subtitle {
+        color: #666;
+        margin: 0;
+    }
+
+    .reservations-list {
+        display: grid;
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .reservation-card {
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        overflow: hidden;
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .reservation-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+
+    .card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: start;
+        padding: 1.5rem;
+        background: #f8f9fa;
+        border-bottom: 1px solid #dee2e6;
+    }
+
+    .card-header h3 {
+        font-family: 'Playfair Display', serif;
+        font-size: 1.3rem;
+        color: #333;
+        margin: 0 0 0.5rem 0;
+    }
+
+    .client-info {
+        color: #666;
+        font-size: 0.95rem;
+        margin: 0;
+    }
+
+    .status-badge {
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-weight: 600;
+        font-size: 0.85rem;
+        white-space: nowrap;
+    }
+
+    .status-en-attente {
+        background: #fff3cd;
+        color: #856404;
+    }
+
+    .status-confirmée {
+        background: #d4edda;
+        color: #155724;
+    }
+
+    .status-retirée {
+        background: #e2e3e5;
+        color: #383d41;
+    }
+
+    .status-annulée {
+        background: #f8d7da;
+        color: #721c24;
+    }
+
+    .card-body {
+        padding: 1.5rem;
+    }
+
+    .info-row {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 0.75rem;
+    }
+
+    .info-row:last-child {
+        margin-bottom: 0;
+    }
+
+    .label {
+        font-weight: 600;
+        color: #666;
+        min-width: 150px;
+    }
+
+    .value {
+        color: #333;
+    }
+
+    .card-footer {
+        display: flex;
+        gap: 0.5rem;
+        padding: 1rem 1.5rem;
+        background: #f8f9fa;
+        border-top: 1px solid #dee2e6;
+    }
+
+    .btn-mini {
+        padding: 0.375rem 0.75rem;
+        background: #007bff;
+        color: white;
+        text-decoration: none;
+        border-radius: 4px;
+        font-size: 0.85rem;
+        border: none;
+        cursor: pointer;
+    }
+
+    .btn-mini:hover {
+        background: #0056b3;
+    }
+
+    .btn-edit {
+        background: #6c757d;
+    }
+
+    .btn-edit:hover {
+        background: #545b62;
+    }
+
+    .btn-success {
+        background: #28a745;
+    }
+
+    .btn-success:hover {
+        background: #218838;
+    }
+
+    .btn-info {
+        background: #17a2b8;
+    }
+
+    .btn-info:hover {
+        background: #138496;
+    }
+
+    .btn-danger {
+        background: #dc3545;
+    }
+
+    .btn-danger:hover {
+        background: #c82333;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 4rem 2rem;
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    .empty-state i {
+        font-size: 4rem;
+        color: #ccc;
+        margin-bottom: 1rem;
+    }
+
+    .empty-state h2 {
+        font-family: 'Playfair Display', serif;
+        color: #333;
+        margin: 0 0 0.5rem 0;
+    }
+
+    .empty-state p {
+        color: #666;
+        margin: 0;
+    }
+
+    .back-link {
+        text-align: center;
+    }
+
+    .btn {
+        padding: 0.75rem 1.5rem;
+        text-decoration: none;
+        border-radius: 4px;
+        border: none;
+        cursor: pointer;
+        font-weight: 600;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .btn-secondary {
+        background: #6c757d;
+        color: white;
+    }
+
+    .btn-secondary:hover {
+        background: #545b62;
+    }
+
+    @media (max-width: 768px) {
+        .card-header {
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .page-header h1 {
+            font-size: 1.5rem;
+        }
+    }
+</style>
+{% endblock %}
+

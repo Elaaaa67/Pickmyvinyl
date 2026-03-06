@@ -1,0 +1,20 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Boutiques{% endblock %}
+
+{% block body %}
+<h1>Boutiques</h1>
+<p><a href="{{ path('app_store_new') }}">Créer une boutique</a></p>
+<ul>
+    {% for s in stores %}
+        <li>
+            {{ s.name }} — {{ s.address }}
+            (<a href="{{ path('app_store_show', {id: s.id}) }}">Voir</a>
+            | <a href="{{ path('app_store_edit', {id: s.id}) }}">Éditer</a>)
+        </li>
+    {% else %}
+        <li>Aucune boutique.</li>
+    {% endfor %}
+</ul>
+{% endblock %}
+

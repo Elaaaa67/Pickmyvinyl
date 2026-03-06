@@ -1,0 +1,54 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Liste des vinyles disponibles{% endblock %}
+
+{% block body %}
+<h1>Vinyles disponibles</h1>
+
+<form method="get" action="{{ path('app_vinyl_index') }}">
+    <input type="search" name="q" value="{{ query|default('') }}" placeholder="Rechercher via Discogs...">
+    <button>Rechercher</button>
+</form>
+
+{% if external is defined and external|length > 0 %}
+    <h2>Résultats externes (Discogs)</h2>
+    <ul>
+    {% for item in external %}
+        <li>
+            {{ item.title }}
+            {% if item.id %}
+                <a href="{{ path('app_vinyl_detail', {'id': item.id}) }}">Détails Discogs</a>
+            {% endif %}
+            <form method="post" action="{{ path('app_vinyl_new') }}" style="display:inline">
+                {# Shortcut pour pré-remplir un vinyle à partir d'un résultat Discogs (optionnel) #}
+            </form>
+        </li>
+    {% endfor %}
+    </ul>
+{% endif %}
+
+<p><a href="{{ path('app_vinyl_new') }}">Créer un vinyle manuel</a></p>
+
+<table>
+    <thead>
+        <tr><th>ID</th><th>Titre</th><th>Artiste</th><th>Actions</th></tr>
+    </thead>
+    <tbody>
+    {% for v in vinyls %}
+        <tr>
+            <td>{{ v.id }}</td>
+            <td>{{ v.title }}</td>
+            <td>{{ v.artist }}</td>
+            <td>
+                <a href="{{ path('app_vinyl_show', {id: v.id}) }}">Voir</a>
+                {% if is_granted('ROLE_USER') %}
+                    <a href="{{ path('app_vinyl_edit', {id: v.id}) }}">Éditer</a>
+                {% endif %}
+            </td>
+        </tr>
+    {% else %}
+        <tr><td colspan="4">Aucun vinyle disponible en magasin.</td></tr>
+    {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

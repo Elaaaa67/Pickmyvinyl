@@ -1,0 +1,117 @@
+{# templates/security/login_success.html.twig #}
+{% extends 'base.html.twig' %}
+
+{% block title %}Connexion réussie - Pick My Vinyl{% endblock %}
+
+{% block body %}
+    <div class="success-page">
+        <div class="success-card">
+            <div class="vinyl-animation">
+                <div class="vinyl-disc"></div>
+                <i class="fas fa-check-circle check-icon"></i>
+            </div>
+
+            <header class="success-header">
+                <h1>Ravi de vous revoir !</h1>
+                <p>Connexion réussie. Préparation de votre bac de vinyles...</p>
+            </header>
+
+            <div class="loader-container">
+                <div class="loader-bar"></div>
+            </div>
+
+            <p class="redirect-text">
+                Redirection automatique dans <span id="timer">3</span> secondes...
+            </p>
+
+            <a href="{{ path('app_home') }}" class="btn-continue">
+                Accéder au catalogue maintenant
+            </a>
+        </div>
+    </div>
+
+    <style>
+        .success-page {
+            min-height: 85vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #F2EFE9;
+        }
+
+        .success-card {
+            max-width: 500px;
+            width: 90%;
+            background: white;
+            padding: 50px;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: 0 15px 35px rgba(61, 13, 13, 0.1);
+        }
+
+        /* Animation du Vinyle */
+        .vinyl-animation { position: relative; width: 100px; margin: 0 auto 30px; }
+        .vinyl-disc {
+            width: 100px; height: 100px;
+            background: #111; border-radius: 50%;
+            border: 2px solid #333;
+            background: radial-gradient(circle, #333 5%, #111 6%, #111 100%);
+            animation: spin 2s linear infinite;
+        }
+        .check-icon {
+            position: absolute; top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            color: #F2EFE9; font-size: 2rem;
+        }
+
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+
+        .success-header h1 {
+            font-family: 'Playfair Display', serif;
+            color: #3D0D0D;
+            font-size: 2.2rem;
+            margin-bottom: 10px;
+        }
+
+        .success-header p { font-family: 'Merriweather', serif; color: #666; font-size: 1rem; }
+
+        /* Barre de chargement */
+        .loader-container {
+            width: 100%; height: 4px;
+            background: #eee; border-radius: 2px;
+            margin: 30px 0; overflow: hidden;
+        }
+        .loader-bar {
+            width: 0%; height: 100%;
+            background: #3D0D0D;
+            animation: load 3s forwards;
+        }
+
+        @keyframes load { to { width: 100%; } }
+
+        .redirect-text { font-size: 0.9rem; color: #888; font-style: italic; }
+
+        .btn-continue {
+            display: inline-block; margin-top: 20px;
+            color: #3D0D0D; text-decoration: none;
+            font-weight: bold; border-bottom: 2px solid #3D0D0D;
+            transition: 0.3s;
+        }
+        .btn-continue:hover { color: #631D22; border-color: #631D22; }
+    </style>
+
+    <script>
+        // Petit script pour le compte à rebours visuel
+        let timeLeft = 3;
+        const timerElement = document.getElementById('timer');
+
+        const countdown = setInterval(() => {
+            timeLeft--;
+            timerElement.textContent = timeLeft;
+            if (timeLeft <= 0) {
+                clearInterval(countdown);
+                window.location.href = "{{ path('app_home') }}";
+            }
+        }, 1000);
+    </script>
+{% endblock %}
