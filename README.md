@@ -1,326 +1,263 @@
 # 🎵 Pick My Vinyl
-
-**Application web de réservation de vinyles en magasin (Click & Collect)**
-
-Une plateforme moderne permettant aux utilisateurs de consulter un catalogue de vinyles, de réserver des vinyles disponibles dans des enseignes partenaires et de venir les récupérer sur place.
-
+ 
+**Réservez vos vinyles en ligne, récupérez-les en magasin (Click & Collect).**
+ 
+![PHP](https://img.shields.io/badge/PHP-8.2%2B-777BB4?logo=php&logoColor=white)
+![Symfony](https://img.shields.io/badge/Symfony-7.2-000000?logo=symfony&logoColor=white)
+![MySQL](https://img.shields.io/badge/MySQL-8.0%2B-4479A1?logo=mysql&logoColor=white)
+![License](https://img.shields.io/badge/licence-MIT-green)
+ 
+Pick My Vinyl est une application web développée avec **Symfony 7.2**. Elle permet de parcourir un catalogue de vinyles alimenté par l'API [Discogs](https://www.discogs.com/developers), de réserver les disques disponibles chez des enseignes partenaires, puis de venir les retirer sur place.
+ 
+<!-- Ajoutez ici une capture d'écran ou un GIF de démonstration -->
+<!-- ![Aperçu](docs/images/preview.png) -->
+ 
 ---
-
-## 📋 Table des matières
-
-- [Présentation](#présentation)
-- [Fonctionnalités](#fonctionnalités)
-- [Technologies](#technologies)
-- [Installation](#installation)
-- [Configuration](#configuration)
-- [Utilisation](#utilisation)
-- [Structure du projet](#structure-du-projet)
-- [Rôles et permissions](#rôles-et-permissions)
-- [API Discogs](#api-discogs)
-- [Screenshots](#screenshots)
-- [Contribuer](#contribuer)
-- [Licence](#licence)
-
+ 
+## 📋 Sommaire
+ 
+- [Fonctionnalités](#-fonctionnalités)
+- [Stack technique](#️-stack-technique)
+- [Démarrage rapide](#-démarrage-rapide)
+- [Configuration](#️-configuration)
+- [Utilisation](#-utilisation)
+- [Rôles et permissions](#-rôles-et-permissions)
+- [Cycle de vie d'une réservation](#-cycle-de-vie-dune-réservation)
+- [Intégration Discogs](#-intégration-discogs)
+- [Emails automatiques](#-emails-automatiques)
+- [Structure du projet](#-structure-du-projet)
+- [Personnalisation](#-personnalisation)
+- [Tests](#-tests)
+- [Commandes utiles](#-commandes-utiles)
+- [Dépannage](#-dépannage)
+- [Contribuer](#-contribuer)
+- [Licence](#-licence)
 ---
-
-## 🎯 Présentation
-
-Pick My Vinyl est une application web développée avec **Symfony 7.2** qui permet de gérer un système de réservation de vinyles en magasin. Les utilisateurs peuvent :
-
-- 🔍 Rechercher des vinyles via l'API Discogs
-- 🛒 Ajouter des vinyles à leur panier
-- 📋 Créer des réservations dans des magasins spécifiques
-- ✅ Recevoir des confirmations par email
-- 🏪 (Pour les gérants) Gérer les stocks et valider les réservations
-
----
-
+ 
 ## ✨ Fonctionnalités
-
-### 👤 Pour les utilisateurs (ROLE_USER)
-
-- ✅ **Inscription avec vérification d'email obligatoire**
-- 🔍 **Recherche de vinyles** via l'API Discogs
-- 📖 **Consultation du catalogue** avec filtres et pagination
-- 🛒 **Panier d'achat** pour sélectionner plusieurs vinyles
-- 📋 **Création de réservations** dans des magasins spécifiques
-- 📧 **Emails de confirmation** pour chaque réservation
-- 📅 **Consultation de l'historique** des réservations
-- ❌ **Annulation de réservations** en attente
-
-### 🏪 Pour les enseignes (ROLE_STORE)
-
-- 📊 **Dashboard gérant** avec statistiques
-- 📦 **Gestion des stocks** du magasin
-- 🔍 **Import de vinyles** depuis Discogs
-- ✅ **Validation des réservations** en attente
-- ❌ **Rejet des réservations** impossibles à honorer
-- 📋 **Consultation des réservations** de son magasin
-
-### 🔐 Pour les administrateurs (ROLE_ADMIN)
-
-- 🎨 **Dashboard EasyAdmin** avec statistiques globales
-- 👥 **Gestion des utilisateurs** (CRUD complet)
-- 🎵 **Gestion des vinyles** (CRUD complet)
-- 🏪 **Gestion des magasins** (CRUD complet)
-- 📋 **Gestion des réservations** (CRUD complet avec filtres)
-- 📊 **Statistiques en temps réel** (utilisateurs, vinyls, réservations)
-
+ 
+### 👤 Utilisateurs (`ROLE_USER`)
+ 
+- Inscription avec **vérification d'email obligatoire**
+- **Recherche** de vinyles via Discogs, avec filtres et pagination
+- **Panier** multi-vinyles
+- **Réservation** dans un magasin donné, avec email de confirmation
+- **Historique** des réservations et **annulation** tant qu'elles sont en attente
+### 🏪 Enseignes (`ROLE_STORE`)
+ 
+- Dashboard avec statistiques
+- Gestion des stocks du magasin
+- Import de vinyles depuis Discogs
+- **Validation** ou **rejet** des réservations en attente
+- Consultation des réservations du magasin
+### 🔐 Administrateurs (`ROLE_ADMIN`)
+ 
+- Dashboard **EasyAdmin** avec statistiques globales (utilisateurs, vinyles, réservations)
+- CRUD complet : utilisateurs, vinyles, magasins, réservations (avec filtres)
 ---
-
-## 🛠️ Technologies
-
-### Backend
-- **PHP 8.2+**
-- **Symfony 7.2** (Framework MVC)
-- **Doctrine ORM** (Base de données)
-- **EasyAdmin 4** (Interface d'administration)
-- **Symfony Mailer** (Envoi d'emails)
-- **Twig** (Moteur de templates)
-
-### Frontend
-- **HTML5 / CSS3**
-- **JavaScript (Vanilla)**
-- **Font Awesome 6** (Icônes)
-- **Google Fonts** (Typographie)
-
-### Intégrations
-- **API Discogs** (Catalogue de vinyles)
-- **Calliostro Discogs Bundle** (Client PHP)
-
-### Base de données
-- **MySQL 8.0** / **MariaDB**
-
+ 
+## 🛠️ Stack technique
+ 
+| Couche | Technologies |
+|---|---|
+| Backend | PHP 8.2+, Symfony 7.2, Doctrine ORM, Symfony Mailer, Twig |
+| Administration | EasyAdmin 4 |
+| Frontend | HTML5, CSS3, JavaScript (vanilla), Font Awesome 6, Google Fonts |
+| Intégration | API Discogs via [Calliostro Discogs Bundle](https://github.com/calliostro/discogs-bundle) |
+| Base de données | MySQL 8.0+ / MariaDB |
+ 
 ---
-
-## 📦 Installation
-
+ 
+## 🚀 Démarrage rapide
+ 
 ### Prérequis
-
-- PHP 8.2 ou supérieur
-- Composer
-- MySQL 8.0+ ou MariaDB
-- Node.js et npm (optionnel pour AssetMapper)
-
-### Étapes d'installation
-
-1. **Cloner le projet**
+ 
+- PHP **8.2+** et [Composer](https://getcomposer.org/)
+- MySQL **8.0+** ou MariaDB
+- [Symfony CLI](https://symfony.com/download) (recommandé)
+- Node.js et npm *(uniquement si AssetMapper est utilisé)*
+- Un [token Discogs](https://www.discogs.com/settings/developers)
+### Installation
+ 
 ```bash
+# 1. Cloner le projet
 git clone https://github.com/votre-username/pick-my-vinyl.git
 cd pick-my-vinyl
-```
-
-2. **Installer les dépendances**
-```bash
+ 
+# 2. Installer les dépendances
 composer install
-npm install  # Si AssetMapper est utilisé
-```
-
-3. **Configurer la base de données**
-
-Créer un fichier `.env.local` :
-```env
-DATABASE_URL="mysql://user:password@127.0.0.1:3306/pickmyvinyl?serverVersion=8.0"
-```
-
-4. **Créer la base de données**
-```bash
+npm install   # si AssetMapper est utilisé
+ 
+# 3. Configurer l'environnement (voir section Configuration)
+cp .env .env.local
+ 
+# 4. Créer la base et appliquer les migrations
 php bin/console doctrine:database:create
 php bin/console doctrine:migrations:migrate
-```
-
-5. **Charger les fixtures (optionnel)**
-```bash
+ 
+# 5. (Optionnel) Charger les données de démonstration
 php bin/console doctrine:fixtures:load
-```
-
-6. **Configurer l'API Discogs**
-
-Ajouter dans `.env.local` :
-```env
-DISCOGS_TOKEN="votre_token_discogs"
-```
-
-Obtenir un token : https://www.discogs.com/settings/developers
-
-7. **Lancer le serveur**
-```bash
+ 
+# 6. Lancer le serveur
 symfony server:start
-# ou
-php -S localhost:8000 -t public
+# ou : php -S localhost:8000 -t public
 ```
-
-8. **Accéder à l'application**
-- Site principal : `http://localhost:8000`
-- Dashboard admin : `http://localhost:8000/admin`
-
+ 
+L'application est alors disponible sur :
+ 
+| Page | URL |
+|---|---|
+| Site | `http://localhost:8000` |
+| Administration | `http://localhost:8000/admin` |
+ 
 ---
-
+ 
 ## ⚙️ Configuration
-
-### Configuration des emails
-
-Dans `.env.local` :
+ 
+Toutes les variables sensibles se placent dans **`.env.local`** (non versionné — ne le commitez jamais).
+ 
 ```env
+# Base de données
+DATABASE_URL="mysql://user:password@127.0.0.1:3306/pickmyvinyl?serverVersion=8.0"
+ 
+# API Discogs
+DISCOGS_TOKEN="votre_token_discogs"
+ 
+# Emails (production)
 MAILER_DSN=smtp://user:pass@smtp.example.com:587
+ 
+# Emails (développement, avec MailCatcher/Mailpit)
+# MAILER_DSN=smtp://localhost:1025
 ```
-
-Pour le développement (MailCatcher) :
-```env
-MAILER_DSN=smtp://localhost:1025
-```
-
-### Configuration Discogs
-
-Dans `config/packages/calliostro_discogs.yaml` :
+ 
+Configuration du bundle Discogs, dans `config/packages/calliostro_discogs.yaml` :
+ 
 ```yaml
 calliostro_discogs:
     token: '%env(DISCOGS_TOKEN)%'
 ```
-
+ 
 ---
-
-## 🚀 Utilisation
-
+ 
+## 📖 Utilisation
+ 
 ### Créer un compte utilisateur
-
-1. Aller sur `/inscription/user`
-2. Remplir le formulaire
-3. **Vérifier son email** (lien envoyé automatiquement)
-4. Se connecter sur `/login`
-
+ 
+1. Rendez-vous sur `/inscription/user` et remplissez le formulaire.
+2. Cliquez sur le lien reçu par email pour **vérifier votre adresse**.
+3. Connectez-vous sur `/login`.
 ### Créer un compte enseigne
-
-1. Aller sur `/inscription/boutique`
-2. Remplir les informations du magasin
-3. **Vérifier son email**
-4. Accéder au dashboard gérant
-
+ 
+1. Rendez-vous sur `/inscription/boutique` et renseignez les informations du magasin.
+2. **Vérifiez votre email**.
+3. Accédez au dashboard gérant.
 ### Créer un compte administrateur
-
-Via la console :
+ 
 ```bash
-php bin/console app:create-admin admin@example.com password
+php bin/console app:create-admin admin@example.com <mot_de_passe>
 ```
-
-Ou manuellement dans la base de données en ajoutant `ROLE_ADMIN` aux rôles.
-
+ 
+> 💡 Un mot de passe saisi en ligne de commande reste dans l'historique du shell. Utilisez un mot de passe temporaire et changez-le après la première connexion.
+ 
+Alternative : ajouter manuellement `ROLE_ADMIN` aux rôles de l'utilisateur en base.
+ 
 ---
-
+ 
+## 🔐 Rôles et permissions
+ 
+| Fonctionnalité | `ROLE_USER` | `ROLE_STORE` | `ROLE_ADMIN` |
+|---|:---:|:---:|:---:|
+| Consulter le catalogue | ✅ | ✅ | ✅ |
+| Créer une réservation | ✅ | ❌ | ❌ |
+| Annuler une réservation | ✅ | ❌ | ❌ |
+| Gérer les stocks du magasin | ❌ | ✅ | ❌ |
+| Valider / rejeter des réservations | ❌ | ✅ | ❌ |
+| CRUD vinyles | ❌ | ❌ | ✅ |
+| CRUD magasins | ❌ | ❌ | ✅ |
+| CRUD utilisateurs | ❌ | ❌ | ✅ |
+| Dashboard admin | ❌ | ❌ | ✅ |
+ 
+---
+ 
+## 🔄 Cycle de vie d'une réservation
+ 
+```mermaid
+stateDiagram-v2
+    [*] --> pending : Création par le client
+    pending --> confirmed : Validation par le gérant
+    pending --> rejected : Rejet par le gérant
+    pending --> cancelled : Annulation par le client
+    confirmed --> [*]
+    rejected --> [*]
+    cancelled --> [*]
+```
+ 
+| Statut | Description | Modifiable par |
+|---|---|---|
+| `pending` | En attente de validation | Gérant (validation/rejet), client (annulation) |
+| `confirmed` | Validée par le gérant | — |
+| `rejected` | Rejetée par le gérant | — |
+| `cancelled` | Annulée par le client | — |
+ 
+Le client dispose de **7 jours** pour retirer sa réservation en magasin.
+ 
+---
+ 
+## 🎵 Intégration Discogs
+ 
+L'application interroge l'API Discogs pour la recherche et les métadonnées (titre, artiste, année, pochette).
+ 
+| Usage | Endpoint Discogs |
+|---|---|
+| Recherche (`/catalogue?q=...`) | `GET /database/search` |
+| Détail d'une édition | `GET /releases/{id}` |
+ 
+- **Pagination** : 50 résultats par page
+- **Authentification** : token personnel requis
+- **Rate limit** : 60 requêtes/minute en mode authentifié — voir la [documentation officielle](https://www.discogs.com/developers) pour les limites à jour
+---
+ 
+## 📧 Emails automatiques
+ 
+| Email | Déclencheur | Contenu |
+|---|---|---|
+| Vérification | Inscription | Lien d'activation du compte (valable 24 h) |
+| Confirmation de réservation | Création d'une réservation | Détail de la réservation, magasin, délai de retrait de 7 jours |
+ 
+---
+ 
 ## 📁 Structure du projet
-
+ 
 ```
 pick-my-vinyl/
-├── assets/               # Assets front-end (JS, CSS)
-├── bin/                  # Scripts console
-├── config/               # Configuration Symfony
-│   ├── packages/         # Configuration des bundles
-│   └── routes/           # Configuration des routes
-├── migrations/           # Migrations Doctrine
-├── public/               # Point d'entrée web
-│   └── images/           # Images statiques
+├── assets/                 # JS et CSS
+├── bin/                    # Console Symfony
+├── config/                 # Configuration (packages, routes)
+├── migrations/             # Migrations Doctrine
+├── public/                 # Point d'entrée web et images statiques
 ├── src/
-│   ├── Controller/       # Contrôleurs MVC
-│   │   ├── Admin/        # Controllers EasyAdmin
+│   ├── Controller/
+│   │   ├── Admin/          # Contrôleurs EasyAdmin
 │   │   ├── CartController.php
 │   │   ├── CatalogController.php
 │   │   ├── ReservationController.php
 │   │   └── StoreManagerController.php
-│   ├── Entity/           # Entités Doctrine
-│   │   ├── User.php
-│   │   ├── Vinyl.php
-│   │   ├── Store.php
-│   │   ├── Reservation.php
-│   │   └── Stock.php
-│   ├── Form/             # Formulaires Symfony
-│   ├── Repository/       # Repositories Doctrine
-│   ├── Service/          # Services métier
-│   │   ├── CartService.php
-│   │   ├── EmailService.php
-│   │   └── ReservationService.php
-│   └── Security/         # Authenticator
-├── templates/            # Templates Twig
-│   ├── admin/            # Templates EasyAdmin
-│   ├── cart/             # Templates panier
-│   ├── catalog/          # Templates catalogue
-│   ├── emails/           # Templates emails
-│   ├── registration/     # Templates inscription
-│   ├── reservation/      # Templates réservations
-│   ├── security/         # Templates connexion
-│   ├── store_manager/    # Templates gérant
-│   └── base.html.twig    # Layout principal
-└── var/                  # Cache et logs
+│   ├── Entity/             # User, Vinyl, Store, Reservation, Stock
+│   ├── Form/               # Formulaires Symfony
+│   ├── Repository/         # Repositories Doctrine
+│   ├── Security/           # Authenticator
+│   └── Service/            # CartService, EmailService, ReservationService
+├── templates/              # Templates Twig (admin, cart, catalog, emails,
+│                           #   registration, reservation, security, store_manager)
+└── var/                    # Cache et logs
 ```
-
+ 
 ---
-
-## 🔐 Rôles et permissions
-
-| Fonctionnalité | ROLE_USER | ROLE_STORE | ROLE_ADMIN |
-|----------------|:---------:|:----------:|:----------:|
-| Consulter catalogue | ✅ | ✅ | ✅ |
-| Créer réservation | ✅ | ❌ | ❌ |
-| Annuler réservation | ✅ | ❌ | ❌ |
-| Gérer stocks magasin | ❌ | ✅ | ❌ |
-| Valider réservations | ❌ | ✅ | ❌ |
-| CRUD Vinyles | ❌ | ❌ | ✅ |
-| CRUD Magasins | ❌ | ❌ | ✅ |
-| CRUD Utilisateurs | ❌ | ❌ | ✅ |
-| Dashboard Admin | ❌ | ❌ | ✅ |
-
----
-
-## 🎵 API Discogs
-
-L'application utilise l'API Discogs pour :
-
-- **Recherche de vinyles** : `/catalogue?q=recherche`
-- **Détails d'un vinyle** : Récupération des métadonnées (titre, artiste, année, pochette)
-- **Pagination** : 50 résultats par page
-
-### Endpoints utilisés
-
-- `GET /database/search` - Recherche générale
-- `GET /releases/{id}` - Détails d'un release
-
-### Limitations
-
-- **Authentification** : Token personnel requis
-- **Rate limit** : 60 requêtes/minute
-- **Quota** : 10 000 requêtes/24h
-
----
-
-## 📊 Statuts des réservations
-
-| Statut | Description | Modifiable par |
-|--------|-------------|----------------|
-| `pending` | En attente de validation | Gérant (validation/rejet) |
-| `confirmed` | Validée par le gérant | - |
-| `cancelled` | Annulée par le client | Client (si pending) |
-| `rejected` | Rejetée par le gérant | Gérant |
-
----
-
-## 📧 Emails automatiques
-
-### Email de vérification
-- **Envoyé à** : Inscription
-- **Contenu** : Lien de vérification (valable 24h)
-- **Action** : Activer le compte
-
-### Email de confirmation de réservation
-- **Envoyé à** : Création de réservation
-- **Contenu** : Détails réservation, magasin, délai 7 jours
-- **Action** : Informer l'utilisateur
-
----
-
+ 
 ## 🎨 Personnalisation
-
-### Couleurs du thème
-
-Dans `assets/styles/app.css` :
+ 
+**Couleurs du thème**, dans `assets/styles/app.css` :
+ 
 ```css
 :root {
     --bordeaux: #3D0D0D;
@@ -329,108 +266,74 @@ Dans `assets/styles/app.css` :
     --gold: #D4AF37;
 }
 ```
-
-### Logo
-
-Remplacer `public/images/pickmyvinyl.png`
-
-### Favicon
-
-Remplacer `public/images/pickmyvinyl.png` ou `public/favicon.ico`
-
+ 
+**Logo et favicon** : remplacez `public/images/pickmyvinyl.png` (et/ou `public/favicon.ico`).
+ 
 ---
-
+ 
 ## 🧪 Tests
-
+ 
 ```bash
-# Tests unitaires
+# Tous les tests
 php bin/phpunit
-
-# Tests fonctionnels
+ 
+# Tests fonctionnels uniquement
 php bin/phpunit --testsuite functional
 ```
-
+ 
 ---
-
+ 
 ## 📝 Commandes utiles
-
-```bash
-# Créer une migration
-php bin/console make:migration
-
-# Appliquer les migrations
-php bin/console doctrine:migrations:migrate
-
-# Vider le cache
-php bin/console cache:clear
-
-# Créer un utilisateur admin
-php bin/console app:create-admin email@example.com password
-
-# Lancer le serveur
-symfony server:start
-```
-
+ 
+| Action | Commande |
+|---|---|
+| Créer une migration | `php bin/console make:migration` |
+| Appliquer les migrations | `php bin/console doctrine:migrations:migrate` |
+| Vider le cache | `php bin/console cache:clear` |
+| Créer un admin | `php bin/console app:create-admin <email> <mot_de_passe>` |
+| Lancer le serveur | `symfony server:start` |
+ 
 ---
-
+ 
 ## 🐛 Dépannage
-
-### Problème de mémoire PHP
-```bash
-php -d memory_limit=512M bin/console cache:clear
-```
-
-### Erreur CSRF Token
-Vérifier que le token CSRF est bien désactivé dans `security.yaml` ou généré dans les formulaires.
-
-### Email non envoyé
-Vérifier la configuration `MAILER_DSN` dans `.env.local`
-
-### API Discogs ne répond pas
-Vérifier le token Discogs dans `.env.local`
-
+ 
+| Problème | Solution |
+|---|---|
+| Manque de mémoire PHP | `php -d memory_limit=512M bin/console cache:clear` |
+| Erreur de token CSRF | Vérifiez que le champ `_token` est bien généré dans le formulaire concerné. Ne désactivez pas la protection CSRF en production. |
+| Emails non envoyés | Vérifiez `MAILER_DSN` dans `.env.local` (en dev, lancez MailCatcher ou Mailpit). |
+| L'API Discogs ne répond pas | Vérifiez `DISCOGS_TOKEN` dans `.env.local` et que la limite de requêtes n'est pas atteinte. |
+ 
 ---
-
-## 📚 Documentation complémentaire
-
-- [Documentation Symfony](https://symfony.com/doc/current/index.html)
-- [Documentation EasyAdmin](https://symfony.com/bundles/EasyAdminBundle/current/index.html)
-- [API Discogs](https://www.discogs.com/developers)
-- [Doctrine ORM](https://www.doctrine-project.org/projects/orm.html)
-
+ 
+## 🤝 Contribuer
+ 
+Les contributions sont les bienvenues !
+ 
+1. Forkez le dépôt
+2. Créez une branche : `git checkout -b feature/ma-fonctionnalite`
+3. Commitez vos changements : `git commit -m "Ajoute ma fonctionnalité"`
+4. Poussez la branche : `git push origin feature/ma-fonctionnalite`
+5. Ouvrez une Pull Request
+Merci de lancer `php bin/phpunit` avant toute PR.
+ 
 ---
-
-## 👥 Auteurs
-
-- **Développeur principal** : Votre Nom
-- **Projet pédagogique** : Formation Développement Web
-
----
-
+ 
 ## 📄 Licence
-
-Ce projet est sous licence MIT. Voir le fichier `LICENSE` pour plus de détails.
-
+ 
+Distribué sous licence **MIT**. Voir le fichier [`LICENSE`](LICENSE).
+ 
 ---
-
+ 
+## 👥 Auteurs et contact
+ 
+- **Développeur principal** : Votre Nom — projet pédagogique, formation Développement Web
+- **Contact** : contact@pickmyvinyl.com
+- **GitHub** : https://github.com/votre-username/pick-my-vinyl
 ## 🙏 Remerciements
-
-- API Discogs pour le catalogue de vinyles
-- Communauté Symfony pour les bundles
-- Font Awesome pour les icônes
-- Google Fonts pour les polices
-
+ 
+[Discogs](https://www.discogs.com) pour le catalogue, la communauté [Symfony](https://symfony.com) et [EasyAdmin](https://symfony.com/bundles/EasyAdminBundle/current/index.html), [Font Awesome](https://fontawesome.com) et [Google Fonts](https://fonts.google.com).
+ 
 ---
-
-## 📞 Contact
-
-Pour toute question ou suggestion :
-- Email : contact@pickmyvinyl.com
-- GitHub : https://github.com/votre-username/pick-my-vinyl
-
----
-
-**Développé avec ❤️ et 🎵 par l'équipe Pick My Vinyl**
-
-#   P i c k m y v i n y l  
- 
+ 
+<p align="center">Développé avec ❤️ et 🎵 par l'équipe Pick My Vinyl</p>
